@@ -280,17 +280,17 @@ export default {
 			return  tempHours+":"+tempMinutes+":"+tempSeconds;
 		},
 		cardDoAction: function(val, elem) {
-			var thisCard = this.timers[elem];
+			var thisCard = this.timers.find(el => el._id === elem);
 
 			//var temp = this.timers.filter(elem => elem.timerType === thisCard.timerType);
 			if(val[0] === "restart"){
-				this.$store.dispatch("restartTimer", {"type": this.timers[elem].timerType, "id": thisCard._id,});
+				this.$store.dispatch("restartTimer", {"type": thisCard.timerType, "id": thisCard._id,});
 			} else if(val[0] === "remove"){
 				//console.log("rm");
-				this.$store.dispatch("removeTimer", {"type": this.timers[elem].timerType, "id": thisCard._id,});
+				this.$store.dispatch("removeTimer", {"type": thisCard.timerType, "id": thisCard._id,});
 			} else if(val[0] === "active" || val[0] === "paused" || val[0] === "stopped"){
 				console.log(thisCard._id);
-				this.$store.dispatch("changeStatus", {"type": this.timers[elem].timerType, "id": thisCard._id, "value": val[0],});
+				this.$store.dispatch("changeStatus", {"type": thisCard.timerType, "id": thisCard._id, "value": val[0],});
 			}
 		},
 		submitTimer: function(){			

@@ -72,6 +72,22 @@
 							<TabPane name="fan" label="Fan" icon="thermometer"></TabPane>
 						</Tabs>
 						<div class="timer-container">
+							<transition name="fade">
+							<Row v-if="groupedTimers[showTab].length === 0">
+								<i-col span="24" offset="0">
+									<Row>
+										<i-col span="24" offset="0">
+											<p>Use the form to create content.</p>
+										</i-col>
+									</Row>
+									<Row>
+										<i-col span="24" offset="0">
+											<img src="./assets/plus-bg.svg"/>
+										</i-col>
+									</Row>
+								</i-col>
+							</Row>
+							</transition>
 							<Row v-for="(timerRow, index) in groupedTimers[showTab]" :gutter="16" :key="index">
 								<transition-group name="fade" mode="out-in">
 									<i-col :xs="24" :sm="24" :md="12" :lg="6" v-for="(timerElem, index2) in timerRow" :key="index2" :class="timerElem.timerType" v-if="showTab === 'all' || showTab === timerElem.timerType">

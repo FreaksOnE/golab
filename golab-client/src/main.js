@@ -5,9 +5,12 @@ import Vuex from "vuex";
 import iView from "iview/dist/iview.min";
 import App from "./App";
 import router from "./router";
+import axios from "axios";
 
 import "iview/dist/styles/iview.css";
 import "./theme.less";
+
+var apiAddr = process.env.API_ADDR;
 
 Vue.use(Vuex);
 Vue.use(iView);
@@ -67,20 +70,6 @@ const store = new Vuex.Store({
 		getTimers: state => state.timers,
 	},
 	mutations: {
-		TOGGLE_MENU: (state, payload) => {
-			if (payload) state.showMenu = true;
-			else state.showMenu = false;
-		},
-		TOGGLE_PRELOAD: (state, payload) => {
-			if (payload) state.preLoad = true;
-			else state.preLoad = false;
-		},
-		INC_NOTIFICATIONS_COUNT: (state, payload) => {
-			state.servers.find(server => server._id === payload).notifications += 1;
-		},
-		DEC_NOTIFICATIONS_COUNT: (state, payload) => {
-			state.servers.find(server => server._id === payload).notifications = 0;
-		},
 		RESTART_TIMER: (state, payload) => {
 			var elem = state.timers.filter(elem => elem.timerType === payload.type && elem._id === payload.id);
 			elem[0].onTime = elem[0].initialOnTime;
@@ -118,39 +107,11 @@ const store = new Vuex.Store({
 				}
 			});
 		},
-		ADD_TIMER: (state, payload) => {
-			var temp = [];
-			state.timers.forEach(elem => {
-				temp.push(elem._id);
-			});
-			const max = Math.max(...temp);
-
-			var newTimer = {
-				_id: max+1,
-				status: "active",
-				timerType: payload.type,
-				onTime: payload.onTime,
-				offTime: payload.offTime,
-				initialOnTime: payload.onTime,
-				initialOffTime: payload.offTime,
-				tag: payload.tag,
-				portNum: payload.portNum,
-			};
-			state.timers.push(newTimer);
+		FETCH_TIMERS: (state, payload) => {
+			state.timers = payload;
 		},
 	},
 	actions: {
-		toggleMenu: (context, payload) => {
-			context.commit("DESELECT_ALL_MSGS");
-			context.commit("TOGGLE_MENU", payload);
-			//vm.login();
-		},
-		toggleLoggedIn: (context, payload) => {
-			context.commit("TOGGLE_LOGGEDIN", payload);
-		},
-		toggleHideChat: (context, payload) => {
-			context.commit("TOGGLE_HIDE_CHAT", payload);
-		},
 		restartTimer: (context, payload) => {
 			context.commit("RESTART_TIMER", payload);
 		},
@@ -163,8 +124,40 @@ const store = new Vuex.Store({
 		timerTick: (context) => {
 			context.commit("TIMER_TICK");
 		},
-		addTimer: (context, payload) => {
-			context.commit("ADD_TIMER", payload);
+		/*addTimer: () => {
+			var temp = [];
+			store.getters.getTimers.forEach(elem => {
+				temp.push(elem._id);
+			});
+			//const max = Math.max(...temp);
+
+			var newTimer = {
+				_id: max+1,
+				status: "active",
+				timerType: payload.type,
+				onTime: payload.onTime,
+				offTime: payload.offTime,
+				initialOnTime: payload.onTime,
+				initialOffTime: payload.offTime,
+				tag: payload.tag,
+				portNum: payload.portNum,
+			};
+			newTimer;
+
+
+			//context.commit("ADD_TIMER", payload);
+		},*/
+		fetchTimers: (context) => {
+			console.log(apiAddr);
+			axios.get("http://"+"localhost:3001/api"+"/timers").then(response => {
+				context.commit("FETCH_TIMERS", response.data.data);
+			}).catch(err => {
+				if(err.message === "Network Error"){
+					console.log("Error: Server unreachable.");
+				} else {
+					console.log(err.message);
+				}
+			});
 		},
 	},
 });
@@ -177,7 +170,7 @@ new Vue({
 	components: { App, },
 	template: "<App/>",
 	created: function() {
-	
+		store.dispatch("fetchTimers");
 	},
 	mounted: function() {
 		this.timer = setInterval(this.timerSec, 1000);

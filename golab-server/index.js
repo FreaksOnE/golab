@@ -1,31 +1,239 @@
-// call the packages we need
-var express = require("express"); // call express
-var app = express(); // define our app using express
+var express = require("express"); 
+var app = express();
+var server = require("http").createServer(app);
+var morgan = require("morgan");
 var bodyParser = require("body-parser");
+var mongoose   = require("mongoose");
+var timerModel = require("./models/timer.js");
 
-// configure app to use bodyParser()
-// this will let us get the data from a POST
+
+// Configuring Mangoose
+var mongoDB = "mongodb://localhost:27017/golab-test";
+//var mongoDB = 'mongodb://chatUser:123@ds249718.mlab.com:49718/chatdb';
+mongoose.connect(mongoDB);
+mongoose.Promise = global.Promise;
+var db = mongoose.connection;
+db.on("error", console.error.bind(console, "MongoDB connection error:"));
+
+app.use(morgan("dev"));
+
 app.use(bodyParser.urlencoded({ extended: true, }));
 app.use(bodyParser.json());
 
-var port = process.env.PORT || 30001; // set our port
+var port = process.env.PORT || 3001; 
 
-// ROUTES FOR OUR API
-// =============================================================================
-var router = express.Router(); // get an instance of the express Router
+var router = express.Router(); 
 
-// test route to make sure everything is working (accessed at GET http://localhost:8080/api)
-router.get("/", (req, res) => {
-	res.json({ message: "hooray! welcome to our api!", });
+router.all("/*", (req, res, next) => {
+	res.setHeader("Access-Control-Allow-Origin", "*");
+	res.setHeader("Access-Control-Allow-Headers", "Authorization");
+	return next();
 });
 
-// more routes for our API will happen here
+router.get("/", (req, res) => {
+	res.json({ message: "use /api", });
+	return;
+});
 
-// REGISTER OUR ROUTES -------------------------------
-// all of our routes will be prefixed with /api
+router.route("/timers").get((req, res) => {
+	timerModel.find((err, result) => {
+		if(err){
+			console.log(err);
+			res.json(
+				{
+					"done": "error",
+					"code": "0",
+				},
+			);
+			return;
+		}
+		res.json( 
+			{
+				"done": "ok",
+				"data": result,
+			},
+		);
+		return;
+	});
+}).post((req, res) => {
+	var newTimer = new timerModel();
+	if(
+		req.body.status === undefined || 
+		req.body.timerType === undefined || 
+		req.body.onTime === undefined ||
+		req.body.offTime === undefined ||
+		req.body.tag === undefined ||
+		req.body.portNum === undefined
+	) {
+		res.json(
+			{
+				"done": "error",
+				"code": "1",
+				"message": "Provide information",
+			},
+		);
+		return;
+	}
+	
+	newTimer.status = req.body.status;
+	newTimer.timerType = req.body.timerType;
+	newTimer.initialOnTime = req.body.onTime;
+	newTimer.initialOffTime = req.body.offTime;
+	newTimer.tag = req.body.tag;
+	newTimer.portNum = req.body.portNum;
+
+	newTimer.onTime = req.body.onTime;
+	newTimer.offTime = req.body.offTime;
+
+
+	newTimer.save((err, result) => {
+		if(err){
+			console.log(err);
+			res.json( 
+				{
+					"done": "error",
+					"code": "0",
+				},
+			);
+			return;
+		}
+		res.json( 
+			{
+				"done": "ok",
+				"data": result,
+			},
+		);
+		return;
+	});
+});
+
+router.route("/timers/:timer_id").get((req, res) => {
+	var timerID = req.params.timer_id;
+
+	timerModel.findById(timerID,
+		(err, result) => {
+			if(err){
+				console.log(err);
+				res.json( 
+					{
+						"done": "error",
+						"code": "0",
+					},
+				);
+				return;
+			}
+			res.json( 
+				{
+					"done": "ok",
+					"data": result,
+				},
+			);
+			return;
+		});
+}).put((req, res) => {
+	if(
+		req.body.status === undefined || 
+		req.body.timerType === undefined || 
+		req.body.onTime === undefined ||
+		req.body.offTime === undefined ||
+		req.body.tag === undefined ||
+		req.body.portNum === undefined
+	) {
+		res.json(
+			{
+				"done": "error",
+				"code": "1",
+				"message": "Provide information",
+			},
+		);
+		return;
+	}
+
+	var timerID = req.params.timer_id;
+
+	timerModel.findById(timerID,
+		(err, result) => {
+			if(err){
+				console.log(err);
+				res.json( 
+					{
+						"done": "error",
+						"code": "0",
+					},
+				);
+				return;
+			}
+			result.status = req.body.status;
+			result.timerType = req.body.timerType;
+			result.initialOnTime = req.body.onTime;
+			result.initialOffTime = req.body.offTime;
+			result.onTime = req.body.onTime;
+			result.offTime = req.body.offTime;
+			result.tag = req.body.tag;
+			result.portNum = req.body.portNum;
+
+			result.save((err, saveResult) => {
+				if(err){
+					console.log(err);
+					res.json( 
+						{
+							"done": "error",
+							"code": "0",
+						},
+					);
+					return;
+				}
+				res.json( 
+					{
+						"done": "ok",
+						"data": saveResult,
+					},
+				);
+				return;
+			});
+		});
+}).delete((req, res) => {
+	var timerID = req.params.timer_id;
+
+	timerModel.remove(
+		{
+			_id: timerID,
+		},
+		(err) => {
+			if(err){
+				console.log(err);
+				res.json( 
+					{
+						"done": "error",
+						"code": "0",
+					},
+				);
+				return;
+			}
+			res.json( 
+				{
+					"done": "ok",
+				},
+			);
+			return;
+		}
+	);
+});
+
+
 app.use("/api", router);
 
-// START THE SERVER
-// =============================================================================
-app.listen(port);
-console.log("Magic happens on port " + port);
+app.use((req, res, next) => {
+	res.status(404);
+	res.json( 
+		{
+			"done": "error",
+			"code": "404",
+		},
+	);
+	next();
+});
+
+server.listen(port, "::", () => { // "192.168.42.221",
+	console.log("Server listening at port %d", port);
+});

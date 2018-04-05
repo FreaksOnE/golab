@@ -18,6 +18,10 @@
 @subsidiary-color       : #80848f;
 @rate-star-color        : #f5a623;
 
+@background-base-color : #495060;
+@background-light-color : #6d7891;
+
+
 // Base
 @body-background        : #fff;
 @font-family            : "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
@@ -103,7 +107,7 @@
 @layout-header-padding       : 0 50px;
 @layout-footer-padding       : 24px 50px;
 @layout-footer-background    : @layout-body-background;
-@layout-sider-background     : @layout-header-background;
+@layout-sider-background     : @layout-body-background;
 @layout-trigger-height       : 48px;
 @layout-trigger-color        : #fff;
 @layout-zero-trigger-width   : 36px;
@@ -114,7 +118,7 @@
 }
 
 .ivu-layout {
-	background: #f5f7f9;
+	background: rgb(238, 239, 241);
 }
 
 .ivu-layout-header {
@@ -128,13 +132,11 @@
 }
 
 .ivu-layout-sider {
-	box-shadow: @shadow-base;
-	margin: 30px 0px 20px 0px;
-	border-bottom-right-radius: 10px; 
-	border-top-right-radius: 10px; 
+	margin: 10px 0px 20px 0px;
+	background-color: rgb(238, 239, 241);
 }
 
-.ivu-layout-sider .ivu-icon {
+.ivu-layout-sider .sider-content .ivu-icon {
 	color: @tooltip-color !important;
 }
 
@@ -142,8 +144,30 @@
 	color: @tooltip-color !important;
 }
 
+.sider-tabs {
+	height: 10%;
+	width: 100%;
+}
+
+.sider-tabs .ivu-tabs {
+
+}
+
+.sider-tabs .ivu-tabs-bar {
+	margin-bottom: 0px !important;
+}
+
+.sider-content {
+	height: 90%;
+	width: 100%;
+	background: @layout-header-background;
+	box-shadow: @shadow-base;
+	border-bottom-right-radius: 10px; 
+	border-top-right-radius: 10px; 
+}
+
 .ivu-input-number {
-	border-color: @layout-sider-background;
+	border-color: @layout-header-background;
 }
 
 .ivu-input-number-handler-wrap {
@@ -298,7 +322,7 @@ label {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: all 0.4s @ease-in-out;
+  transition: opacity @transition-time @ease-in-out;
 }
 
 .fade-enter,
@@ -307,7 +331,7 @@ label {
 }
 
 .fade-leave-active {
-	width: 0;
+
 }
 
 .fade-move {
@@ -329,6 +353,54 @@ label {
 
 .layout-logo {
 	background: @primary-color;
+}
+
+.fab-wrapper {
+	margin: 10px;
+	right: 2vw !important;
+	bottom: 2vh !important;
+}
+
+.fab.pointer {
+	transition: all @transition-time @ease-in-out;
+}
+
+.fab-wrapper.open .fab.pointer {
+	border-radius: 50% !important;
+}
+
+.fab-wrapper .fab.pointer {
+	border-radius: 10px !important;
+}
+
+.sider-tabs .ivu-tabs {
+	top: calc(100% - 37px);
+}
+
+.sider-tabs .ivu-tabs .ivu-tabs-nav {
+	margin-left: 3px;
+}
+
+.ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-nav-container {
+	height: 100% !important;
+}
+
+.sider-tabs .ivu-tabs .ivu-tabs-nav .ivu-tabs-tab {
+	height: 100% !important;
+	padding: 10px 25px 8px 18px;
+	border: 1px solid @background-light-color;
+	border-bottom: none;
+	background: @background-light-color;
+	color: @tooltip-color;
+	border-top-right-radius: 8px;
+	border-top-left-radius: 8px;
+}
+
+.sider-tabs .ivu-tabs .ivu-tabs-nav .ivu-tabs-tab.ivu-tabs-tab-active {
+	background: @background-base-color;
+	border: 1px solid @background-base-color;
+	border-bottom: none;
+
 }
 
 // Legend

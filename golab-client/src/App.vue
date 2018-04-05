@@ -19,6 +19,13 @@
 				</Header>
 				<layout>
 					<Sider hide-trigger :width="300">
+						<div class="sider-tabs">
+							<Tabs @on-click="handleSiderTab" type="card">
+								<TabPane name="create" label="Add" icon="plus"></TabPane>
+								<TabPane name="edit" label="Edit" icon="edit"></TabPane>
+							</Tabs>
+						</div>
+						<div class="sider-content">
 						<Row>
 							<i-col span="20" offset="2">
 								<div class="title">Add new timer</div>
@@ -55,16 +62,17 @@
 								</Form>
 							</i-col>
 						</Row>
+						</div>
 					</Sider>
 					<Content :style="{padding: '10px 50px'}">
-						<Tabs @on-click="handleTab">
+						<Tabs @on-click="handleTimerTab">
 							<TabPane name="all" label="All" icon="asterisk"></TabPane>
 							<TabPane name="lamp" label="Lamp" icon="lightbulb"></TabPane>
 							<TabPane name="pump" label="Pump" icon="waterdrop"></TabPane>
 							<TabPane name="fan" label="Fan" icon="thermometer"></TabPane>
 						</Tabs>
 						<div class="timer-container">
-							<Row v-for="(timerRow, index) in groupedTimers" :gutter="16" :key="index">
+							<Row v-for="(timerRow, index) in groupedTimers[showTab]" :gutter="16" :key="index">
 								<transition-group name="fade" mode="out-in">
 									<i-col :xs="24" :sm="24" :md="12" :lg="6" v-for="(timerElem, index2) in timerRow" :key="index2" :class="timerElem.timerType" v-if="showTab === 'all' || showTab === timerElem.timerType">
 										<Card :bordered="true" shadow style="width: auto;" :class="timerElem.status">
@@ -106,7 +114,7 @@
 							</Row>
 						</div>
 					</Content>
-					<fab :main-icon="fabItem.icon" :position="fabItem.position" :bg-color="fabItem.bgColor" :actions="fabItem.fabActions" @cache="cache" @alertMe="alert"></fab>
+					<fab @change="fabChange($event.val)" :main-icon="fabItem.icon" :position="fabItem.position" :bg-color="fabItem.bgColor" :actions="fabItem.fabActions" @cache="cache" @alertMe="alert" :class="{ open: fabOpen }"></fab>
 				</layout>
 				<Footer class="layout-footer-center">2018 &copy;</Footer>
 			</Layout>
@@ -116,7 +124,7 @@
 
 <script>
 import _ from "lodash";
-import fab from "vue-fab";
+import fab from "@/components/fab";
 
 var cuformItem = {
 	tag: "",
@@ -137,20 +145,21 @@ export default {
 	},
 	data: function() {
 		return {
+			fabOpen: false,
 			showTab: "all",
 			formItem: cuformItem,
 			fabItem: {
-				bgColor: "#2d8cf0",
+				bgColor: "#495060",
 				position: "bottom-right",
 				icon: "settings",
 				fabActions: [
 					{
-						name: "cache",
-						icon: "cached",
+						name: "restart",
+						icon: "refresh",
 					},
 					{
-						name: "alertMe",
-						icon: "add_alert",
+						name: "powerOff",
+						icon: "power_settings_new",
 					},
 				],
 			},
@@ -183,21 +192,16 @@ export default {
 	},
 	computed: {
 		groupedTimers() {
-			return _.chunk(this.timers, 4);
-			// returns a nested array:
-			// [[article, article, article], [article, article, article], ...]
-		},
-		lampTimers() {
-			var temp = this.timers.filter(timer => timer.timerType === "lamp");
-			return _.chunk(temp, 4);
-		},
-		pumpTimers() {
-			var temp = this.timers.filter(timer => timer.timerType === "pump");
-			return _.chunk(temp, 4);
-		},
-		fanTimers() {
-			var temp = this.timers.filter(timer => timer.timerType === "fan");
-			return _.chunk(temp, 4);
+			var allTimers = this.timers;
+			var lampTimers = allTimers.filter(timer => timer.timerType === "lamp");
+			var fanTimers = allTimers.filter(timer => timer.timerType === "fan");
+			var pumpTimers = allTimers.filter(timer => timer.timerType === "pump");
+			return {
+				all: _.chunk(allTimers, 4),
+				lamp: _.chunk(lampTimers, 4),
+				fan: _.chunk(fanTimers, 4),
+				pump: _.chunk(pumpTimers, 4),
+			};
 		},
 		timers() {
 			return this.$store.getters.getTimers;
@@ -291,9 +295,14 @@ export default {
 		alert: function() {
 			alert("Clicked on alert icon");
 		},
-		handleTab: function(tab) {
-			console.log(tab);
+		handleTimerTab: function(tab) {
 			this.showTab = tab;
+		},
+		handleSiderTab: function() {
+			
+		},
+		fabChange: function(val){
+			this.fabOpen = val;
 		},
 	},
 };

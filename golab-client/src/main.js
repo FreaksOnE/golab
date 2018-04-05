@@ -8,6 +8,7 @@ import router from "./router";
 import axios from "axios";
 
 import "iview/dist/styles/iview.css";
+import "animate.css/animate.min.css";
 import "./theme.less";
 
 var apiAddr = process.env.API_ADDR;
@@ -170,7 +171,7 @@ new Vue({
 	components: { App, },
 	template: "<App/>",
 	created: function() {
-		store.dispatch("fetchTimers");
+		//store.dispatch("fetchTimers");
 	},
 	mounted: function() {
 		this.timer = setInterval(this.timerSec, 1000);

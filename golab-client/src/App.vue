@@ -18,7 +18,7 @@
 					</div>
 				</Header>
 				<layout>
-					<Sider hide-trigger :width="300">
+					<Sider :width="300" collapsible :collapsed-width="78" v-model="isCollapsed" @on-collapse="handleSiderCollapse">
 						<div class="sider-tabs">
 							<Tabs @on-click="handleSiderTab" type="card">
 								<TabPane name="create" label="Add" icon="plus"></TabPane>
@@ -26,42 +26,66 @@
 							</Tabs>
 						</div>
 						<div class="sider-content">
-						<Row>
-							<i-col span="20" offset="2">
-								<div class="title">Add new timer</div>
-							</i-col>
-						</Row>
-						<Row>
-							<i-col span="20" offset="2">
-								<Form>
-									<FormItem label="Tag">
-										<Input icon="pricetag" v-model="formItem.tag" placeholder="Enter tag..." style="width: 217px" />
-									</FormItem>
-									<FormItem label="">
-										<TimePicker type="time" value="ZZ" v-model="formItem.onTime" placeholder="On time ex. 00:00:00" style="width: 100%"></TimePicker>
-									</FormItem>
-									<FormItem label="">
-										<TimePicker type="time" value="ZZ" v-model="formItem.offTime" placeholder="Off time ex. 00:00:00" style="width: 100%"></TimePicker>
-									</FormItem>
-									<FormItem label="Type">
-										<RadioGroup v-model="formItem.type">
-											<Radio label="lamp">Lamp</Radio>
-											<Radio label="pump">Pump</Radio>
-											<Radio label="fan">Fan</Radio>
-										</RadioGroup>
-									</FormItem>
-									<FormItem label="Port number">
-										<InputNumber :max="10" :min="1" :step="1" v-model="formItem.portNum"></InputNumber>
-									</FormItem>
-									<FormItem>
-										<Button type="primary" long :loading="formItem.loading" @click="submitTimer">
-											<span v-if="!formItem.loading">Add Timer</span>
-											<span v-else>Loading...</span>
-										</Button>
-									</FormItem>
-								</Form>
-							</i-col>
-						</Row>
+							<Row>
+								<transition name="sider-content-slide" enter-active-class="animated slideInLeft" leave-active-class="animated slideOutLeft">
+									<i-col span="24" v-show="siderOpen">
+										<Row>
+											<i-col span="20" offset="2">
+												<div class="title">Add new timer</div>
+											</i-col>
+										</Row>
+										<Row>
+											<i-col span="20" offset="2">
+												<Form>
+													<FormItem label="Tag">
+														<Input icon="pricetag" v-model="formItem.tag" placeholder="Enter tag..." style="max-width: 217px" />
+													</FormItem>
+													<FormItem label="">
+														<TimePicker type="time" value="ZZ" v-model="formItem.onTime" placeholder="On time ex. 00:00:00" style="width: 100%"></TimePicker>
+													</FormItem>
+													<FormItem label="">
+														<TimePicker type="time" value="ZZ" v-model="formItem.offTime" placeholder="Off time ex. 00:00:00" style="width: 100%"></TimePicker>
+													</FormItem>
+													<FormItem label="Type">
+														<RadioGroup v-model="formItem.type">
+															<Radio label="lamp">Lamp</Radio>
+															<Radio label="pump">Pump</Radio>
+															<Radio label="fan">Fan</Radio>
+														</RadioGroup>
+													</FormItem>
+													<FormItem label="Port number">
+														<InputNumber :max="10" :min="1" :step="1" v-model="formItem.portNum"></InputNumber>
+													</FormItem>
+													<FormItem>
+														<Button type="primary" long :loading="formItem.loading" @click="submitTimer">
+															<span v-if="!formItem.loading">Add Timer</span>
+															<span v-else>Loading...</span>
+														</Button>
+													</FormItem>
+													<FormItem>
+														<Button type="primary" long :loading="formItem.loading" @click="submitTimer">
+															<span v-if="!formItem.loading">Add Button
+																<icon type="information-circled" />
+															</span>
+															<span v-else>Loading...</span>
+														</Button>
+													</FormItem>
+												</Form>
+											</i-col>
+										</Row>
+									</i-col>
+								</transition>
+
+								<transition name="sliderIconIn" enter-active-class="animated slideInRight" leave-active-class="animated slideOutRight">
+									<div class="siderCollapsedMenu" v-show="!siderOpen">
+										<Row>
+											<i-col span="24">
+												<p style="transform: rotate(90deg)">OPEN</p>
+											</i-col>
+										</Row>
+									</div>
+								</transition>
+							</Row>
 						</div>
 					</Sider>
 					<Content :style="{padding: '10px 50px'}">
@@ -73,24 +97,25 @@
 						</Tabs>
 						<div class="timer-container">
 							<transition name="fade">
-							<Row v-if="groupedTimers[showTab].length === 0">
-								<i-col span="24" offset="0">
-									<Row>
+								<Row v-show="groupedTimers[showTab].length === 0">
+									<i-col span="24" offset="0">
+										<!--<Row>
 										<i-col span="24" offset="0">
 											<p>Use the form to create content.</p>
 										</i-col>
-									</Row>
-									<Row>
-										<i-col span="24" offset="0">
-											<img src="./assets/plus-bg.svg"/>
-										</i-col>
-									</Row>
-								</i-col>
-							</Row>
+									</Row>-->
+										<Row>
+											<i-col span="24" offset="0">
+												<img src="./assets/plus-bg.png" style="width: 400px;margin: auto;position: absolute;left: 0;right: 0;padding: 75px 0;" />
+											</i-col>
+										</Row>
+									</i-col>
+								</Row>
 							</transition>
 							<Row v-for="(timerRow, index) in groupedTimers[showTab]" :gutter="16" :key="index">
 								<transition-group name="fade" mode="out-in">
-									<i-col :xs="24" :sm="24" :md="12" :lg="6" v-for="(timerElem, index2) in timerRow" :key="index2" :class="timerElem.timerType" v-if="showTab === 'all' || showTab === timerElem.timerType">
+									<i-col :xs="24" :sm="24" :md="12" :lg="6" v-for="(timerElem, index2) in timerRow" :key="index2" :class="timerElem.timerType"
+									v-if="showTab === 'all' || showTab === timerElem.timerType">
 										<Card :bordered="true" shadow style="width: auto;" :class="timerElem.status">
 											<p slot="title" style="line-height:20px;">
 												<icon v-if="timerElem.timerType === 'lamp'" type="lightbulb"></icon>
@@ -130,7 +155,8 @@
 							</Row>
 						</div>
 					</Content>
-					<fab @change="fabChange($event.val)" :main-icon="fabItem.icon" :position="fabItem.position" :bg-color="fabItem.bgColor" :actions="fabItem.fabActions" @cache="cache" @alertMe="alert" :class="{ open: fabOpen }"></fab>
+					<fab @change="fabChange($event.val)" :main-icon="fabItem.icon" :position="fabItem.position" :bg-color="fabItem.bgColor" :actions="fabItem.fabActions"
+					@cache="cache" @alertMe="alert" :class="{ open: fabOpen }"></fab>
 				</layout>
 				<Footer class="layout-footer-center">2018 &copy;</Footer>
 			</Layout>
@@ -156,11 +182,11 @@ export default {
 	components: {
 		fab,
 	},
-	mounted: function() {
-
-	},
-	data: function() {
+	mounted: function () { },
+	data: function () {
 		return {
+			isCollapsed: false,
+			siderOpen: true,
 			fabOpen: false,
 			showTab: "all",
 			formItem: cuformItem,
@@ -224,7 +250,7 @@ export default {
 		},
 	},
 	methods: {
-		formatTime: function(val) {
+		formatTime: function (val) {
 			var tempDate = new Date(val * 1000);
 			//console.log(tempDate);
 			var tempHours = tempDate.getUTCHours();
@@ -247,7 +273,7 @@ export default {
 			}
 			return tempHours + ":" + tempMinutes + ":" + tempSeconds;
 		},
-		cardDoAction: function(val, elem) {
+		cardDoAction: function (val, elem) {
 			var thisCard = this.timers.find(el => el._id === elem);
 
 			//var temp = this.timers.filter(elem => elem.timerType === thisCard.timerType);
@@ -264,8 +290,8 @@ export default {
 				});
 			} else if (
 				val[0] === "active" ||
-        val[0] === "paused" ||
-        val[0] === "stopped"
+					val[0] === "paused" ||
+					val[0] === "stopped"
 			) {
 				console.log(thisCard._id);
 				this.$store.dispatch("changeStatus", {
@@ -275,7 +301,7 @@ export default {
 				});
 			}
 		},
-		submitTimer: function() {
+		submitTimer: function () {
 			var elem = this.formItem;
 
 			elem.loading = true;
@@ -305,143 +331,159 @@ export default {
 				elem.loading = false;
 			}, 200);
 		},
-		cache: function() {
+		cache: function () {
 			console.log("Cache Cleared");
 		},
-		alert: function() {
+		alert: function () {
 			alert("Clicked on alert icon");
 		},
-		handleTimerTab: function(tab) {
+		handleTimerTab: function (tab) {
 			this.showTab = tab;
 		},
-		handleSiderTab: function() {
-			
-		},
-		fabChange: function(val){
+		handleSiderTab: function () { },
+		fabChange: function (val) {
 			this.fabOpen = val;
+		},
+		handleSiderCollapse: function (val) {
+			this.siderOpen = !val;
 		},
 	},
 };
 </script>
 
 <style>
-@font-face {
-  font-family: "Material Icons";
-  font-style: normal;
-  font-weight: 400;
-  src: url("./assets/fonts/MaterialIcons-Regular.eot");
-  /* For IE6-8 */
-  src: local("Material Icons"), local("MaterialIcons-Regular"),
-    url("./assets/fonts/MaterialIcons-Regular.svg#MaterialIcons-Regular")
-      format("svg"),
-    url("./assets/fonts/MaterialIcons-Regular.woff2") format("woff2"),
-    url("./assets/fonts/MaterialIcons-Regular.woff") format("woff"),
-    url("./assets/fonts/MaterialIcons-Regular.ttf") format("truetype");
-}
+	@font-face {
+		font-family: "Material Icons";
+		font-style: normal;
+		font-weight: 400;
+		src: url("./assets/fonts/MaterialIcons-Regular.eot");
+		/* For IE6-8 */
+		src: local("Material Icons"), local("MaterialIcons-Regular"),
+		url("./assets/fonts/MaterialIcons-Regular.svg#MaterialIcons-Regular") format("svg"),
+		url("./assets/fonts/MaterialIcons-Regular.woff2") format("woff2"),
+		url("./assets/fonts/MaterialIcons-Regular.woff") format("woff"),
+		url("./assets/fonts/MaterialIcons-Regular.ttf") format("truetype");
+	}
 
-.material-icons {
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;
-  /* Preferred icon size */
-  display: inline-block;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  white-space: nowrap;
-  direction: ltr;
-  user-select: none;
+	.slideInLeft {
+		animation: slideInLeft 0.4s;
+	}
 
-  /* Support for all WebKit browsers. */
-  -webkit-font-smoothing: antialiased;
-  /* Support for Safari and Chrome. */
-  text-rendering: optimizeLegibility;
+	.slideOutLeft {
+		animation: slideOutLeft 1s;
+	}
 
-  /* Support for Firefox. */
-  -moz-osx-font-smoothing: grayscale;
+	.slideInRight {
+		animation: slideInRight .4s;
+	}
 
-  /* Support for IE. */
-  font-feature-settings: "liga";
-}
+	.slideOutRight {
+		animation: slideOutRight .5s;
+	}
 
-/* Rules for sizing the icon. */
+	.material-icons {
+		font-family: "Material Icons";
+		font-weight: normal;
+		font-style: normal;
+		font-size: 24px;
+		/* Preferred icon size */
+		display: inline-block;
+		line-height: 1;
+		text-transform: none;
+		letter-spacing: normal;
+		word-wrap: normal;
+		white-space: nowrap;
+		direction: ltr;
+		user-select: none;
 
-.material-icons.md-18 {
-  font-size: 18px;
-}
+		/* Support for all WebKit browsers. */
+		-webkit-font-smoothing: antialiased;
+		/* Support for Safari and Chrome. */
+		text-rendering: optimizeLegibility;
 
-.material-icons.md-24 {
-  font-size: 24px;
-}
+		/* Support for Firefox. */
+		-moz-osx-font-smoothing: grayscale;
 
-.material-icons.md-36 {
-  font-size: 36px;
-}
+		/* Support for IE. */
+		font-feature-settings: "liga";
+	}
 
-.material-icons.md-48 {
-  font-size: 48px;
-}
+	/* Rules for sizing the icon. */
 
-/* Rules for using icons as black on a light background. */
+	.material-icons.md-18 {
+		font-size: 18px;
+	}
 
-.material-icons.md-dark {
-  color: rgba(0, 0, 0, 0.54);
-}
+	.material-icons.md-24 {
+		font-size: 24px;
+	}
 
-.material-icons.md-dark.md-inactive {
-  color: rgba(0, 0, 0, 0.26);
-}
+	.material-icons.md-36 {
+		font-size: 36px;
+	}
 
-/* Rules for using icons as white on a dark background. */
+	.material-icons.md-48 {
+		font-size: 48px;
+	}
 
-.material-icons.md-light {
-  color: rgba(255, 255, 255, 1);
-}
+	/* Rules for using icons as black on a light background. */
 
-.material-icons.md-light.md-inactive {
-  color: rgba(255, 255, 255, 0.3);
-}
+	.material-icons.md-dark {
+		color: rgba(0, 0, 0, 0.54);
+	}
 
-.layout {
-  border: 1px solid #d7dde4;
-  background: #f5f7f9;
-  position: relative;
-  border-radius: 4px;
-  overflow: hidden;
-}
+	.material-icons.md-dark.md-inactive {
+		color: rgba(0, 0, 0, 0.26);
+	}
 
-.layout-logo {
-  width: 100px;
-  height: 30px;
-/*  background: #5b6270;*/
-  border-radius: 3px;
-  float: left;
-  position: relative;
-  top: 15px;
-  left: 20px;
-}
+	/* Rules for using icons as white on a dark background. */
 
-.layout-nav {
-  width: 420px;
-  margin: 0 auto;
-  margin-right: 20px;
-}
+	.material-icons.md-light {
+		color: rgba(255, 255, 255, 1);
+	}
 
-.layout-status {
-  width: 420px;
-  margin: 0 auto;
-  margin-right: 20px;
-}
+	.material-icons.md-light.md-inactive {
+		color: rgba(255, 255, 255, 0.3);
+	}
 
-.layout-status .ivu-icon {
-  font-size: 14px;
-  padding: 25px 8px;
-  float: left;
-}
+	.layout {
+		border: 1px solid #d7dde4;
+		background: #f5f7f9;
+		position: relative;
+		border-radius: 4px;
+		overflow: hidden;
+	}
 
-.layout-footer-center {
-  text-align: center;
-}
+	.layout-logo {
+		width: 100px;
+		height: 30px;
+		/*  background: #5b6270;*/
+		border-radius: 3px;
+		float: left;
+		position: relative;
+		top: 15px;
+		left: 20px;
+	}
+
+	.layout-nav {
+		width: 420px;
+		margin: 0 auto;
+		float: right;
+	}
+
+	.layout-status {
+		width: 420px;
+		margin: 0 auto;
+		margin-right: 20px;
+	}
+
+	.layout-status .ivu-icon {
+		font-size: 14px;
+		padding: 25px 8px;
+		float: left;
+	}
+
+	.layout-footer-center {
+		text-align: center;
+	}
 </style>

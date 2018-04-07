@@ -11,10 +11,14 @@ var gpio = require("rpi-gpio");
 gpio.setup(11, gpio.DIR_OUT, write);
  
 function write() {
-	gpio.write(11, true, (err) => {
-		if (err) throw err;
-		console.log("Written to pin 11.");
-	});
+	var pinVal = true;
+	setInterval(() => {
+		gpio.write(11, pinVal, (err) => {
+			if (err) throw err;
+			pinVal = !pinVal;
+			console.log("11 is "+ pinVal ? "on" : "off"+".");
+		});
+	}, 1000);
 }
 
 var cors = require("cors");

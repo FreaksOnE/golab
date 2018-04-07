@@ -11,7 +11,7 @@ var gpio = require("rpi-gpio");
 gpio.setup(17, gpio.DIR_OUT, write);
  
 function write() {
-	gpio.write(7, true, (err) => {
+	gpio.write(17, true, (err) => {
 		if (err) throw err;
 		console.log("Written to pin 17.");
 	});

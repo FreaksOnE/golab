@@ -6,6 +6,20 @@ var bodyParser = require("body-parser");
 var mongoose   = require("mongoose");
 var timerModel = require("./models/timer.js");
 
+var cors = require("cors");
+
+var whitelist = ["http://localhost:8080", "http://example2.com",];
+var corsOptions = {
+	origin: function (origin, callback) {
+		if (whitelist.indexOf(origin) !== -1) {
+			callback(null, true);
+		} else {
+			callback(new Error("Not allowed by CORS"));
+		}
+	},
+};
+
+app.use(cors(corsOptions));
 
 // Configuring Mangoose
 var mongoDB = "mongodb://localhost:27017/golab-test";
@@ -24,9 +38,32 @@ var port = process.env.PORT || 3001;
 
 var router = express.Router(); 
 
+function timerTick() {
+	//console.log("tick");
+	timerModel.find(
+		{
+			status: "active",
+		},	(err, result) => {
+			for(var i = 0; i < result.length; i++){
+				if(result[i].offTime > 0){
+					result[i].offTime -= 1;
+				} else {
+					result[i].onTime -= 1;
+				}
+				if(result[i].onTime < 0){
+					result[i].onTime = result[i].initialOnTime;
+					result[i].offTime = result[i].initialOffTime;
+				}
+				result[i].save();
+			}
+		});
+}
+
 router.all("/*", (req, res, next) => {
-	res.setHeader("Access-Control-Allow-Origin", "*");
-	res.setHeader("Access-Control-Allow-Headers", "Authorization");
+	//res.setHeader("Access-Control-Allow-Origin", "*");
+	res.setHeader("Content-Type", "application/json");
+	
+	//console.log(req.params);
 	return next();
 });
 
@@ -167,10 +204,14 @@ router.route("/timers/:timer_id").get((req, res) => {
 			result.timerType = req.body.timerType;
 			result.initialOnTime = req.body.onTime;
 			result.initialOffTime = req.body.offTime;
-			result.onTime = req.body.onTime;
-			result.offTime = req.body.offTime;
 			result.tag = req.body.tag;
 			result.portNum = req.body.portNum;
+
+			if(result.status === "restart"){
+				result.onTime = result.initialOnTime;
+				result.offTime = result.initialOffTime;
+				result.status = "active";
+			}
 
 			result.save((err, saveResult) => {
 				if(err){
@@ -233,6 +274,10 @@ app.use((req, res, next) => {
 	);
 	next();
 });
+
+setInterval(() => {
+	timerTick();
+},1000);
 
 server.listen(port, "::", () => { // "192.168.42.221",
 	console.log("Server listening at port %d", port);

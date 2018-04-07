@@ -1,5 +1,10 @@
 <template>
 	<div id="app">
+		<transition name="fade">
+		<div id="pre-loader" v-if="preLoad">
+			<Spin size="large"></Spin>
+		</div>
+		</transition>
 		<div class="layout">
 			<Layout>
 				<Header>
@@ -17,7 +22,7 @@
 						</Row>
 					</div>
 				</Header>
-				<layout>
+				<layout :class="{ 'edit-mode': editMode }">
 					<Sider :width="300" collapsible :collapsed-width="78" v-model="isCollapsed" @on-collapse="handleSiderCollapse">
 						<div class="sider-tabs">
 							<Tabs @on-click="handleSiderTab" type="card">
@@ -31,7 +36,10 @@
 									<i-col span="24" v-show="siderOpen">
 										<Row>
 											<i-col span="20" offset="2">
-												<div class="title">Add new timer</div>
+												<div class="title">
+												<p v-if="!editMode">Add new timer</p>
+												<p v-if="editMode">Edit timer</p>
+												</div>
 											</i-col>
 										</Row>
 										<Row>
@@ -57,13 +65,17 @@
 														<InputNumber :max="10" :min="1" :step="1" v-model="formItem.portNum"></InputNumber>
 													</FormItem>
 													<FormItem>
-														<Button type="primary" long :loading="formItem.loading" @click="submitTimer">
+														<Button v-if="!editMode" type="primary" long :loading="formItem.loading" @click="submitTimer">
 															<span v-if="!formItem.loading">Add Timer</span>
+															<span v-else>Loading...</span>
+														</Button>
+														<Button v-if="editMode" type="success" long :loading="formItem.loading" @click="editTimer">
+															<span v-if="!formItem.loading">Submit</span>
 															<span v-else>Loading...</span>
 														</Button>
 													</FormItem>
 													<FormItem>
-														<Button type="primary" long :loading="formItem.loading" @click="submitTimer">
+														<Button disabled type="primary" long :loading="formItem.loading" @click="submitTimer">
 															<span v-if="!formItem.loading">Add Button
 																<icon type="information-circled" />
 															</span>
@@ -90,10 +102,10 @@
 					</Sider>
 					<Content :style="{padding: '10px 50px'}">
 						<Tabs @on-click="handleTimerTab">
-							<TabPane name="all" label="All" icon="asterisk"></TabPane>
-							<TabPane name="lamp" label="Lamp" icon="lightbulb"></TabPane>
-							<TabPane name="pump" label="Pump" icon="waterdrop"></TabPane>
-							<TabPane name="fan" label="Fan" icon="thermometer"></TabPane>
+							<TabPane :disabled="editMode" name="all" label="All" icon="asterisk"></TabPane>
+							<TabPane :disabled="editMode" name="lamp" label="Lamp" icon="lightbulb"></TabPane>
+							<TabPane :disabled="editMode" name="pump" label="Pump" icon="waterdrop"></TabPane>
+							<TabPane :disabled="editMode" name="fan" label="Fan" icon="thermometer"></TabPane>
 						</Tabs>
 						<div class="timer-container">
 							<transition name="fade">
@@ -106,7 +118,7 @@
 									</Row>-->
 										<Row>
 											<i-col span="24" offset="0">
-												<img src="./assets/plus-bg.png" style="width: 400px;margin: auto;position: absolute;left: 0;right: 0;padding: 75px 0;" />
+												<img :disabled="editMode" src="./assets/plus-bg.png" style="width: 400px;margin: auto;position: absolute;left: 0;right: 0;padding: 75px 0;z-index:0;" />
 											</i-col>
 										</Row>
 									</i-col>
@@ -116,7 +128,7 @@
 								<transition-group name="fade" mode="out-in">
 									<i-col :xs="24" :sm="24" :md="12" :lg="6" v-for="(timerElem, index2) in timerRow" :key="index2" :class="timerElem.timerType"
 									v-if="showTab === 'all' || showTab === timerElem.timerType">
-										<Card :bordered="true" shadow style="width: auto;" :class="timerElem.status">
+										<Card @click.native="handleCardClick(timerElem._id)" :bordered="true" shadow style="width: auto;" :class="[timerElem.status, { 'edit-mode': editMode, 'selected': timerElem.selected }]">
 											<p slot="title" style="line-height:20px;">
 												<icon v-if="timerElem.timerType === 'lamp'" type="lightbulb"></icon>
 												<icon v-else-if="timerElem.timerType === 'pump'" type="waterdrop"></icon>
@@ -128,7 +140,7 @@
 											</p>
 											<Row style="min-width: 170px;">
 												<i-col span="8" style="text-align: center;">
-													<icon type="android-time" :class="{ active: !timerElem.offTime && timerElem.status != 'stopped' }" style="cursor: default;"></icon>
+													<icon type="android-time" :class="{ active: !timerElem.offTime && timerElem.status != 'stopped' && !editMode }" style="cursor: default;"></icon>
 												</i-col>
 												<i-col span="16">
 													<Row>
@@ -136,7 +148,8 @@
 															<p style="text-align:right;">On Time:</p>
 														</i-col>
 														<i-col span="12">
-															<p style="text-align:left;">{{ formatTime(timerElem.onTime) }}</p>
+															<p v-if="!editMode" style="text-align:left;">{{ formatTime(timerElem.onTime) }}</p>
+															<p v-if="editMode" style="text-align:left;">{{ formatTime(timerElem.initialOnTime) }}</p>
 														</i-col>
 													</Row>
 													<Row>
@@ -144,19 +157,21 @@
 															<p style="text-align:right;">Off Time:</p>
 														</i-col>
 														<i-col span="12">
-															<p style="text-align:left;">{{ formatTime(timerElem.offTime) }}</p>
+															<p v-if="!editMode" style="text-align:left;">{{ formatTime(timerElem.offTime) }}</p>
+															<p v-if="editMode" style="text-align:left;">{{ formatTime(timerElem.initialOffTime) }}</p>
 														</i-col>
 													</Row>
 												</i-col>
 											</Row>
+											<div v-if="editMode" class="cover"/>
 										</Card>
 									</i-col>
 								</transition-group>
 							</Row>
 						</div>
 					</Content>
-					<fab @change="fabChange($event.val)" :main-icon="fabItem.icon" :position="fabItem.position" :bg-color="fabItem.bgColor" :actions="fabItem.fabActions"
-					@cache="cache" @alertMe="alert" :class="{ open: fabOpen }"></fab>
+					<fab :disabled="editMode" @change="fabChange($event.val)" :main-icon="fabItem.icon" :position="fabItem.position" :bg-color="fabItem.bgColor" :actions="fabItem.fabActions"
+					@restart="restartServer" @powerOff="powerOffServer" :class="{ open: fabOpen }"></fab>
 				</layout>
 				<Footer class="layout-footer-center">2018 &copy;</Footer>
 			</Layout>
@@ -185,6 +200,7 @@ export default {
 	mounted: function () { },
 	data: function () {
 		return {
+			editMode: false,
 			isCollapsed: false,
 			siderOpen: true,
 			fabOpen: false,
@@ -233,6 +249,9 @@ export default {
 		};
 	},
 	computed: {
+		preLoad() {
+			return this.$store.getters.getPreLoad;
+		},
 		groupedTimers() {
 			var allTimers = this.timers;
 			var lampTimers = allTimers.filter(timer => timer.timerType === "lamp");
@@ -281,12 +300,19 @@ export default {
 				this.$store.dispatch("restartTimer", {
 					type: thisCard.timerType,
 					id: thisCard._id,
+				}).then(() => {
+					this.$Notice.success({
+						title: "Timer Restarted.",
+						duration: 2,
+					});
 				});
 			} else if (val[0] === "remove") {
 				//console.log("rm");
-				this.$store.dispatch("removeTimer", {
-					type: thisCard.timerType,
-					id: thisCard._id,
+				this.$store.dispatch("removeTimer", thisCard._id).then(() => {
+					this.$Notice.success({
+						title: "Timer removed.",
+						duration: 2,
+					});
 				});
 			} else if (
 				val[0] === "active" ||
@@ -298,8 +324,14 @@ export default {
 					type: thisCard.timerType,
 					id: thisCard._id,
 					value: val[0],
+				}).then(() => {
+					this.$Notice.success({
+						title: "Timer status changed.",
+						duration: 2,
+					});
 				});
 			}
+			
 		},
 		submitTimer: function () {
 			var elem = this.formItem;
@@ -329,23 +361,86 @@ export default {
 
 			setTimeout(() => {
 				elem.loading = false;
+				this.$Notice.success({
+					title: "Timer Added successfully.",
+					duration: 2,
+				});
 			}, 200);
 		},
-		cache: function () {
-			console.log("Cache Cleared");
+		restartServer: function() {
+			this.$Notice.warning({
+				title: "Restarting server.",
+				duration: 2,
+			});
 		},
-		alert: function () {
-			alert("Clicked on alert icon");
+		powerOffServer: function() {
+			this.$Notice.error({
+				title: "Shutting down server.",
+				duration: 2,
+			});
 		},
 		handleTimerTab: function (tab) {
 			this.showTab = tab;
 		},
-		handleSiderTab: function () { },
+		handleSiderTab: function (val) { 
+			cuformItem.tag = "";
+			cuformItem.onTime = "";
+			cuformItem.offTime = "";
+			cuformItem.type = "lamp";
+			cuformItem.portNum = 0;
+
+			if(val === "edit"){
+				this.editMode = true;
+				this.$Notice.open({
+					title: "Select a timer for editing.",
+					duration: 2,
+				});
+			} else {
+				this.timers.forEach(elem => {
+					elem.selected = false;
+				});
+				this.editMode = false;
+			}
+		},
 		fabChange: function (val) {
 			this.fabOpen = val;
 		},
 		handleSiderCollapse: function (val) {
 			this.siderOpen = !val;
+		},
+		handleCardClick: function (val) {
+			var timerVal = this.timers.find(elem => elem._id === val);
+			if(this.editMode){
+				this.timers.forEach(elem => {
+					elem.selected = false;
+				});
+				timerVal.selected = true;
+				cuformItem.tag = timerVal.tag;
+				cuformItem.onTime = this.formatTime(timerVal.initialOnTime);
+				cuformItem.offTime = this.formatTime(timerVal.initialOffTime);
+				cuformItem.type = timerVal.timerType;
+				cuformItem.portNum = timerVal.portNum;
+			}
+		},
+		editTimer: function() {
+			var timerElem = this.timers.find(elem => elem.selected === true);
+			
+			var cuOnTime = new Date("Jan 1, 1970, " + this.formItem.onTime + " GMT+00:00");
+			var cuOffTime = new Date("Jan 1, 1970, " + this.formItem.offTime + " GMT+00:00");
+
+			timerElem.status = "restart";
+			timerElem.tag = this.formItem.tag;
+			timerElem.initialOnTime = cuOnTime.getTime() / 1000;
+			timerElem.initialOffTime = cuOffTime.getTime() / 1000;
+			timerElem.timerType = this.formItem.type;
+			timerElem.portNum = this.formItem.portNum;
+
+			this.$store.dispatch("editTimer", timerElem).then(() => {
+				this.$Notice.success({
+					title: "Timer edited.",
+					duration: 2,
+				});
+			});
 		},
 	},
 };
@@ -365,6 +460,17 @@ export default {
 		url("./assets/fonts/MaterialIcons-Regular.ttf") format("truetype");
 	}
 
+	.ivu-card > .cover {
+		height: 100%;
+		width: 100%;
+		z-index: 100;
+		cursor: pointer;
+	}
+
+.ivu-card > .cover::hover {
+	background: rgba(0, 0, 0, 0.1);
+}
+
 	.slideInLeft {
 		animation: slideInLeft 0.4s;
 	}
@@ -378,7 +484,7 @@ export default {
 	}
 
 	.slideOutRight {
-		animation: slideOutRight .5s;
+		animation: slideOutRight .4s;
 	}
 
 	.material-icons {

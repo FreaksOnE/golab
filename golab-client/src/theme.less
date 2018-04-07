@@ -79,9 +79,9 @@
 @btn-border-radius-small: 3px;
 @btn-group-border       : shade(@primary-color, 5%);
 
-@btn-disable-color      : #bbbec4;
-@btn-disable-bg         : @background-color-base;
-@btn-disable-border     : @border-color-base;
+@btn-disable-color      : #bbb;
+@btn-disable-bg         : @background-light-color;
+@btn-disable-border     : @background-light-color;
 
 @btn-default-color      : @text-color;
 @btn-default-bg         : @background-color-base;
@@ -123,6 +123,11 @@
 
 .ivu-layout {
 	background: rgb(238, 239, 241);
+	transition: background @transition-time @ease-in-out;
+}
+
+.ivu-layout.edit-mode {
+	background: url("./assets/grid-bg.png");
 }
 
 .ivu-layout-header {
@@ -137,7 +142,7 @@
 
 .ivu-layout-sider {
 	margin: 10px 0px 20px 0px;
-	background-color: rgb(238, 239, 241);
+	background: none;
 }
 
 .ivu-layout-sider .sider-content .ivu-icon {
@@ -202,6 +207,7 @@
 	top: 10%;
 	right: 0px;
 	overflow: hidden;
+	min-height: 500px;
 }
 
 .ivu-input-number {
@@ -268,6 +274,16 @@ label {
 	margin: 0px 5px 20px 5px;
 }
 
+.ivu-card.edit-mode .ivu-card-head {
+	background: @background-light-color !important;
+	color: @tooltip-color;
+}
+
+.ivu-card.edit-mode.selected .ivu-card-head {
+	background: @primary-color !important;
+	color: @tooltip-color;
+}
+
 .ivu-card.active .ivu-card-head {
 	background: @success-color;
 	color: @tooltip-color;
@@ -303,6 +319,8 @@ label {
 .ivu-card-body {
 	padding: 5px;
 	overflow: hidden;
+	cursor: default;
+	user-select: none;
 }
 
 .ivu-card-body .ivu-col {
@@ -439,6 +457,23 @@ label {
 	border: 1px solid @background-base-color;
 	border-bottom: none;
 
+}
+
+#pre-loader {
+	position: fixed;
+	height: 100vh;
+	width: 100vw;
+	z-index: 10000;
+	background: #fff;
+}
+
+#pre-loader .ivu-spin {
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	margin: auto;
+	width: 32px;
+	top: calc(50vh - 16px);
 }
 
 // Legend

@@ -7,10 +7,9 @@ var mongoose   = require("mongoose");
 var timerModel = require("./models/timer.js");
 
 var gpio = require("rpi-gpio");
- 
-gpio.setup(11, gpio.DIR_OUT, write);
- 
-function write() {
+  
+// eslint-disable-next-line
+/*function writeTest() {
 	var pinVal = true;
 	setInterval(() => {
 		gpio.write(11, pinVal, (err) => {
@@ -19,11 +18,11 @@ function write() {
 			console.log("11 is "+pinVal+".\r");
 		});
 	}, 1000);
-}
+}*/
 
 var cors = require("cors");
 
-var whitelist = ["http://localhost:8080", "http://example2.com",];
+var whitelist = ["http://localhost:8080",];
 var corsOptions = {
 	origin: function (origin, callback) {
 		if (whitelist.indexOf(origin) !== -1) {
@@ -43,6 +42,13 @@ mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
+
+// gpio.setup(11, gpio.DIR_OUT);
+timerModel.find({}, (err, result) => {
+	result.forEach(elem => {
+		gpio.setup(elem.portNum , gpio.DIR_OUT);
+	});
+});
 
 app.use(morgan("dev"));
 
@@ -68,6 +74,17 @@ function timerTick() {
 				if(result[i].onTime < 0){
 					result[i].onTime = result[i].initialOnTime;
 					result[i].offTime = result[i].initialOffTime;
+				}
+				if(result[i].offTime === 0){
+					gpio.write(result[i].portNum, true, (err) => {
+						if (err) throw err;
+						//console.log("pin "+result[i].portNum+" is on");
+					});
+				} else {
+					gpio.write(result[i].portNum, false, (err) => {
+						if (err) throw err;
+						//console.log("pin "+result[i].portNum+" is off");
+					});
 				}
 				result[i].save();
 			}

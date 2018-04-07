@@ -16,7 +16,7 @@ function write() {
 		gpio.write(11, pinVal, (err) => {
 			if (err) throw err;
 			pinVal = !pinVal;
-			console.log("11 is "+ pinVal ? "on" : "off"+".");
+			console.log("11 is "+pinVal+".");
 		});
 	}, 1000);
 }

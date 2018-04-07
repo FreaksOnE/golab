@@ -8,12 +8,12 @@ var timerModel = require("./models/timer.js");
 
 var gpio = require("rpi-gpio");
  
-gpio.setup(7, gpio.DIR_OUT, write);
+gpio.setup(17, gpio.DIR_OUT, write);
  
 function write() {
 	gpio.write(7, true, (err) => {
 		if (err) throw err;
-		console.log("Written to pin");
+		console.log("Written to pin 17.");
 	});
 }
 

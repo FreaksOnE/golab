@@ -22,7 +22,7 @@ var gpio = require("rpi-gpio");
 
 var cors = require("cors");
 
-var whitelist = ["http://localhost:8080", "http://192.168.1.10:3001", "http://192.168.1.10", ];
+var whitelist = ["http://localhost:8080", "http://192.168.1.10:3001", "http://192.168.1.10", "*", ];
 var corsOptions = {
 	origin: function (origin, callback) {
 		if (whitelist.indexOf(origin) !== -1) {

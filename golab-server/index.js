@@ -67,28 +67,30 @@ function timerTick() {
 		{
 			status: "active",
 		},	(err, result) => {
-			for(var i = 0; i < result.length; i++){
-				if(result[i].offTime > 0){
-					result[i].offTime -= 1;
-				} else {
-					result[i].onTime -= 1;
+			if(result.length > 0) {
+				for(var i = 0; i < result.length; i++){
+					if(result[i].offTime > 0){
+						result[i].offTime -= 1;
+					} else {
+						result[i].onTime -= 1;
+					}
+					if(result[i].onTime < 0){
+						result[i].onTime = result[i].initialOnTime;
+						result[i].offTime = result[i].initialOffTime;
+					}
+					if(result[i].offTime === 0){
+						gpio.write(result[i].portNum, true, (err) => {
+							if (err) throw err;
+							//console.log("pin "+result[i].portNum+" is on");
+						});
+					} else {
+						gpio.write(result[i].portNum, false, (err) => {
+							if (err) throw err;
+							//console.log("pin "+result[i].portNum+" is off");
+						});
+					}
+					result[i].save();
 				}
-				if(result[i].onTime < 0){
-					result[i].onTime = result[i].initialOnTime;
-					result[i].offTime = result[i].initialOffTime;
-				}
-				if(result[i].offTime === 0){
-					gpio.write(result[i].portNum, true, (err) => {
-						if (err) throw err;
-						//console.log("pin "+result[i].portNum+" is on");
-					});
-				} else {
-					gpio.write(result[i].portNum, false, (err) => {
-						if (err) throw err;
-						//console.log("pin "+result[i].portNum+" is off");
-					});
-				}
-				result[i].save();
 			}
 		});
 }

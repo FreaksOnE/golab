@@ -35,7 +35,7 @@ var corsOptions = {
 	},
 };
 
-app.use(cors(corsOptions));
+app.use(cors());
 
 // Configuring Mangoose
 var mongoDB = "mongodb://localhost:27017/golab-test";
@@ -47,9 +47,11 @@ db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
 // gpio.setup(11, gpio.DIR_OUT);
 timerModel.find({}, (err, result) => {
-	result.forEach(elem => {
-		gpio.setup(elem.portNum , gpio.DIR_OUT);
-	});
+	if(result.length > 0) {
+		result.forEach(elem => {
+			gpio.setup(elem.portNum , gpio.DIR_OUT);
+		});
+	}
 });
 
 app.use(morgan("dev"));
@@ -98,7 +100,7 @@ function timerTick() {
 router.all("/*", (req, res, next) => {
 	//res.setHeader("Access-Control-Allow-Origin", "*");
 	res.setHeader("Content-Type", "application/json");
-	
+	console.log("yo");	
 	//console.log(req.params);
 	return next();
 });

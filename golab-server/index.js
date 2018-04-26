@@ -46,7 +46,7 @@ var db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
 // gpio.setup(11, gpio.DIR_OUT);
-timerModel.find({}, (err, result) => {
+/*timerModel.find({}, (err, result) => {
 	if(err){
 		console.log(err);
 	}
@@ -55,7 +55,7 @@ timerModel.find({}, (err, result) => {
 			gpio.setup(elem.portNum , gpio.DIR_OUT);
 		});
 	}
-});
+});*/
 
 app.use(morgan("dev"));
 
@@ -67,7 +67,7 @@ var port = process.env.PORT || 3001;
 var router = express.Router(); 
 
 function timerTick() {
-	//console.log("tick");
+	console.log("tick");
 	timerModel.find(
 		{
 			status: "active",
@@ -114,7 +114,7 @@ router.get("/", (req, res) => {
 
 router.route("/timers").get((req, res) => {
 
-	timerModel.find((err, kittens) => {
+	timerModel.find((err, result) => {
 		if (err) return console.error(err);
 		console.log(kittens);
 	});

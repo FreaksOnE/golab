@@ -71,7 +71,7 @@ function timerTick() {
 		{
 			status: "active",
 		},	(err, result) => {
-			console.log(result);
+			console.log(err);
 			if(result.length > 0) {
 				for(var i = 0; i < result.length; i++){
 					if(result[i].offTime > 0){

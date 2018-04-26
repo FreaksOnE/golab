@@ -142,11 +142,12 @@ router.route("/timers").get((req, res) => {
 		}
 		return;
 	});
-	res.json( 
+	res.json(
 		{
 			"done": "ok",
 			"data": "0",
 		},
+	);
 }).post((req, res) => {
 	var newTimer = new timerModel();
 	if(

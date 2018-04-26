@@ -47,6 +47,9 @@ db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
 // gpio.setup(11, gpio.DIR_OUT);
 timerModel.find({}, (err, result) => {
+	if(err){
+		console.log(err);
+	}
 	if(result.length > 0) {
 		result.forEach(elem => {
 			gpio.setup(elem.portNum , gpio.DIR_OUT);
@@ -122,7 +125,7 @@ router.route("/timers").get((req, res) => {
 			);
 			return;
 		}
-		if(result){
+		if(result.length > 0){
 			res.json( 
 				{
 					"done": "ok",

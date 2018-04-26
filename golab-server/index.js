@@ -67,11 +67,11 @@ var port = process.env.PORT || 3001;
 var router = express.Router(); 
 
 function timerTick() {
-	console.log("tick");
 	timerModel.find(
 		{
 			status: "active",
 		},	(err, result) => {
+			console.log(result);
 			if(result.length > 0) {
 				for(var i = 0; i < result.length; i++){
 					if(result[i].offTime > 0){

@@ -4,6 +4,8 @@ var server = require("http").createServer(app);
 var morgan = require("morgan");
 var bodyParser = require("body-parser");
 var mongoose   = require("mongoose");
+mongoose.set("debug", true);
+
 var timerModel = require("./models/timer.js");
 
 var gpio = require("rpi-gpio");

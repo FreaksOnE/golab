@@ -110,7 +110,7 @@ router.get("/", (req, res) => {
 });
 
 router.route("/timers").get((req, res) => {
-	console.log("yo");
+	console.log(timerModel.find());
 	timerModel.find((err, result) => {
 		console.log(result);
 		if(err){
@@ -129,7 +129,7 @@ router.route("/timers").get((req, res) => {
 				"data": result,
 			},
 		);
-		return;
+		//return;
 	});
 }).post((req, res) => {
 	var newTimer = new timerModel();

@@ -38,14 +38,14 @@ var corsOptions = {
 app.use(cors());
 
 // Configuring Mangoose
-var mongoDB = "mongodb://localhost:27017/golab-test";
-//var mongoDB = 'mongodb://chatUser:123@ds249718.mlab.com:49718/chatdb';
+//var mongoDB = "mongodb://localhost:27017/golab-test";
+var mongoDB = "mongodb://chatUser:123@ds249718.mlab.com:49718/chatdb";
 mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
-db.once("open", (callback) => {
-	// yay!
+db.once("open", () => {
+	console.log("db opened successfully.");
 });
 
 

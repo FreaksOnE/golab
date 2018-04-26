@@ -125,6 +125,8 @@ router.route("/timers").get((req, res) => {
 			);
 			return;
 		}
+		console.log(result);
+		
 		if(result.length > 0){
 			res.json( 
 				{
@@ -142,12 +144,6 @@ router.route("/timers").get((req, res) => {
 		}
 		return;
 	});
-	res.json(
-		{
-			"done": "ok",
-			"data": "0",
-		},
-	);
 }).post((req, res) => {
 	var newTimer = new timerModel();
 	if(

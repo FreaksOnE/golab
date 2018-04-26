@@ -114,9 +114,11 @@ router.get("/", (req, res) => {
 
 router.route("/timers").get((req, res) => {
 
-	timerModel.find((err, result) => {
-		if (err) return console.error(err);
-		console.log(kittens);
+	var query  = timerModel.where({ color: "white", });
+	query.findOne((err, kitten) => {
+		if (kitten) {
+			console.log(kitten);
+		}
 	});
 	
 	timerModel.find({}, (err, result) => {

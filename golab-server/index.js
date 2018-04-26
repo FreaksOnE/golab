@@ -100,7 +100,6 @@ function timerTick() {
 router.all("/*", (req, res, next) => {
 	//res.setHeader("Access-Control-Allow-Origin", "*");
 	res.setHeader("Content-Type", "application/json");
-	console.log("yo");	
 	//console.log(req.params);
 	return next();
 });
@@ -112,6 +111,7 @@ router.get("/", (req, res) => {
 
 router.route("/timers").get((req, res) => {
 	timerModel.find((err, result) => {
+		console.log(result);
 		if(err){
 			console.log(err);
 			res.json(

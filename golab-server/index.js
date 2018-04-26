@@ -110,13 +110,8 @@ router.get("/", (req, res) => {
 });
 
 router.route("/timers").get((req, res) => {
-	timerModel.find((err, result) => {
-		console.log(err);
-		console.log(result);
-	});
 
 	timerModel.find((err, result) => {
-		console.log(result);
 		if(err){
 			console.log(err);
 			res.json(
@@ -127,13 +122,22 @@ router.route("/timers").get((req, res) => {
 			);
 			return;
 		}
-		res.json( 
-			{
-				"done": "ok",
-				"data": result,
-			},
-		);
-		//return;
+		if(result){
+			res.json( 
+				{
+					"done": "ok",
+					"data": result,
+				},
+			);
+		} else {
+			res.json( 
+				{
+					"done": "ok",
+					"data": "0",
+				},
+			);
+		}
+		return;
 	});
 }).post((req, res) => {
 	var newTimer = new timerModel();

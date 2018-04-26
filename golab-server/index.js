@@ -115,6 +115,10 @@ router.get("/", (req, res) => {
 router.route("/timers").get((req, res) => {
 
 	timerModel.find({}, (err, result) => {
+		console.log(result);
+	});
+
+	timerModel.find({}, (err, result) => {
 		if(err){
 			console.log(err);
 			res.json(
@@ -126,7 +130,7 @@ router.route("/timers").get((req, res) => {
 			return;
 		}
 		console.log(result);
-		
+
 		if(result.length > 0){
 			res.json( 
 				{

@@ -44,6 +44,10 @@ mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
+db.once("open", (callback) => {
+	// yay!
+});
+
 
 // gpio.setup(11, gpio.DIR_OUT);
 /*timerModel.find({}, (err, result) => {

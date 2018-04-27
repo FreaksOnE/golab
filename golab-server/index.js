@@ -3,13 +3,25 @@ var app = express();
 var server = require("http").createServer(app);
 var morgan = require("morgan");
 var bodyParser = require("body-parser");
-var mongoose   = require("mongoose");
-mongoose.set("debug", true);
+var sqlite3 = require("sqlite3");
 
-var timerModel = require("./models/timer.js");
+//var timerModel = require("./models/timer.js");
 
 var gpio = require("rpi-gpio");
   
+var db = new sqlite3.Database("golab.db", [], () => {
+	console.log("db opened successfully");
+});
+
+var writeToDB = function() {
+	db.all("SELECT * FROM timers", (err, rows) => {
+		console.log(rows);
+	});	
+	//db.close();
+};
+
+writeToDB();
+
 // eslint-disable-next-line
 /*function writeTest() {
 	var pinVal = true;
@@ -24,7 +36,7 @@ var gpio = require("rpi-gpio");
 
 var cors = require("cors");
 
-var whitelist = ["http://localhost:8080", "http://192.168.1.10:3001", "http://192.168.1.10", "*", ];
+//var whitelist = ["http://localhost:8080", "http://192.168.1.10:3001", "http://192.168.1.10", "*", ];
 var corsOptions = {
 	origin: function (origin, callback) {
 		callback(null, true);
@@ -39,16 +51,7 @@ var corsOptions = {
 
 app.use(cors());
 
-// Configuring Mangoose
-//var mongoDB = "mongodb://localhost:27017/golab-test";
-var mongoDB = "mongodb://chatUser:123@ds249718.mlab.com:49718/chatdb";
-mongoose.connect(mongoDB);
-mongoose.Promise = global.Promise;
-var db = mongoose.connection;
-db.on("error", console.error.bind(console, "MongoDB connection error:"));
-db.once("open", () => {
-	console.log("db opened successfully.");
-});
+
 
 
 // gpio.setup(11, gpio.DIR_OUT);
@@ -73,37 +76,42 @@ var port = process.env.PORT || 3001;
 var router = express.Router(); 
 
 function timerTick() {
-	timerModel.find(
-		{
-			status: "active",
-		},	(err, result) => {
-			console.log(err);
-			if(result.length > 0) {
-				for(var i = 0; i < result.length; i++){
-					if(result[i].offTime > 0){
-						result[i].offTime -= 1;
-					} else {
-						result[i].onTime -= 1;
-					}
-					if(result[i].onTime < 0){
-						result[i].onTime = result[i].initialOnTime;
-						result[i].offTime = result[i].initialOffTime;
-					}
-					if(result[i].offTime === 0){
-						gpio.write(result[i].portNum, true, (err) => {
-							if (err) throw err;
-							//console.log("pin "+result[i].portNum+" is on");
-						});
-					} else {
-						gpio.write(result[i].portNum, false, (err) => {
-							if (err) throw err;
-							//console.log("pin "+result[i].portNum+" is off");
-						});
-					}
-					result[i].save();
+	db.all("SELECT * FROM timers WHERE status='active'", (err, result) => {
+		if(result.length > 0) {
+			var allQueries = "";
+			for(var i = 0; i < result.length; i++){
+				if(result[i].offTime > 0){
+					result[i].offTime -= 1;
+				} else {
+					result[i].onTime -= 1;
 				}
+				if(result[i].onTime < 0){
+					result[i].onTime = result[i].initialOnTime;
+					result[i].offTime = result[i].initialOffTime;
+				}
+				/*if(result[i].offTime === 0){
+					gpio.write(result[i].portNum, true, (err) => {
+						if (err) throw err;
+						//console.log("pin "+result[i].portNum+" is on");
+					});
+				} else {
+					gpio.write(result[i].portNum, false, (err) => {
+						if (err) throw err;
+					});
+				}*/
+				var query = "UPDATE timers SET onTime="+result[i].onTime+", offTime="+result[i].offTime+" WHERE id="+result[i].id;
+				allQueries += query + "\n";
+				db.all(query, [], (err) => {
+					if (err) {
+						console.log(err);
+					}
+				});
 			}
-		});
+			//console.log(allQueries);
+		} else {
+			console.log("no timers atm.");
+		}
+	});	
 }
 
 router.all("/*", (req, res, next) => {
@@ -120,14 +128,7 @@ router.get("/", (req, res) => {
 
 router.route("/timers").get((req, res) => {
 
-	var query  = timerModel.where({ color: "white", });
-	query.findOne((err, kitten) => {
-		if (kitten) {
-			console.log(kitten);
-		}
-	});
-	
-	timerModel.find({}, (err, result) => {
+	db.all("SELECT * FROM timers", [], (err, result) => {
 		if(err){
 			console.log(err);
 			res.json(
@@ -158,7 +159,6 @@ router.route("/timers").get((req, res) => {
 		return;
 	});
 }).post((req, res) => {
-	var newTimer = new timerModel();
 	if(
 		req.body.status === undefined || 
 		req.body.timerType === undefined || 
@@ -176,22 +176,38 @@ router.route("/timers").get((req, res) => {
 		);
 		return;
 	}
+	console.log(req.body.status);
 	
-	newTimer.status = req.body.status;
-	newTimer.timerType = req.body.timerType;
-	newTimer.initialOnTime = req.body.onTime;
-	newTimer.initialOffTime = req.body.offTime;
-	newTimer.tag = req.body.tag;
-	newTimer.portNum = req.body.portNum;
+	var query = "INSERT INTO timers (status, timerType, onTime, offTime, initialOnTime, initialOffTime, tag, portNum) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-	newTimer.onTime = req.body.onTime;
-	newTimer.offTime = req.body.offTime;
-
-
-	newTimer.save((err, result) => {
+	db.all(query, [req.body.status, req.body.timerType, req.body.onTime, req.body.offTime, req.body.onTime, req.body.offTime, req.body.tag, req.body.portNum,], (err) => {
 		if(err){
 			console.log(err);
-			res.json( 
+			res.json(
+				{
+					"done": "error",
+					"code": "0",
+				},
+			);
+			return;
+		}
+		res.json( 
+			{
+				"done": "ok",
+			},
+		);
+	});
+
+});
+
+router.route("/timers/:timer_id").get((req, res) => {
+	var timerID = req.params.timer_id;
+
+	var query = "SELECT * FROM timers WHERE id=?";
+	db.all(query, [timerID,], (err, result) => {
+		if(err){
+			console.log(err);
+			res.json(
 				{
 					"done": "error",
 					"code": "0",
@@ -207,31 +223,7 @@ router.route("/timers").get((req, res) => {
 		);
 		return;
 	});
-});
-
-router.route("/timers/:timer_id").get((req, res) => {
-	var timerID = req.params.timer_id;
-
-	timerModel.findById(timerID,
-		(err, result) => {
-			if(err){
-				console.log(err);
-				res.json( 
-					{
-						"done": "error",
-						"code": "0",
-					},
-				);
-				return;
-			}
-			res.json( 
-				{
-					"done": "ok",
-					"data": result,
-				},
-			);
-			return;
-		});
+	
 }).put((req, res) => {
 	if(
 		req.body.status === undefined || 
@@ -252,33 +244,16 @@ router.route("/timers/:timer_id").get((req, res) => {
 	}
 
 	var timerID = req.params.timer_id;
+	var cu_initialOnTime, cu_initialOffTime;
 
-	timerModel.findById(timerID,
-		(err, result) => {
-			if(err){
-				console.log(err);
-				res.json( 
-					{
-						"done": "error",
-						"code": "0",
-					},
-				);
-				return;
-			}
-			result.status = req.body.status;
-			result.timerType = req.body.timerType;
-			result.initialOnTime = req.body.onTime;
-			result.initialOffTime = req.body.offTime;
-			result.tag = req.body.tag;
-			result.portNum = req.body.portNum;
+	
 
-			if(result.status === "restart"){
-				result.onTime = result.initialOnTime;
-				result.offTime = result.initialOffTime;
-				result.status = "active";
-			}
-
-			result.save((err, saveResult) => {
+	if(req.body.status === "restart"){
+		db.get("SELECT initialOnTime, initialOffTime FROM timers WHERE id="+timerID, [], (err, result) => {
+			cu_initialOffTime = result.initialOffTime;
+			cu_initialOnTime = result.initialOnTime;
+			var query = "UPDATE timers SET status=?, onTime=?, offTime=? WHERE id=?";
+			db.get(query, ["active", cu_initialOnTime, cu_initialOffTime,], (err) => {
 				if(err){
 					console.log(err);
 					res.json( 
@@ -289,23 +264,17 @@ router.route("/timers/:timer_id").get((req, res) => {
 					);
 					return;
 				}
-				res.json( 
+				res.json(
 					{
 						"done": "ok",
-						"data": saveResult,
 					},
 				);
 				return;
 			});
 		});
-}).delete((req, res) => {
-	var timerID = req.params.timer_id;
-
-	timerModel.remove(
-		{
-			_id: timerID,
-		},
-		(err) => {
+	} else {
+		var query = "UPDATE timers SET status=?, timerType=?, onTime=?, offTime=? WHERE id=?";
+		db.get(query, ["active", cu_initialOnTime, cu_initialOffTime,], (err) => {
 			if(err){
 				console.log(err);
 				res.json( 
@@ -316,14 +285,36 @@ router.route("/timers/:timer_id").get((req, res) => {
 				);
 				return;
 			}
-			res.json( 
+			res.json(
 				{
 					"done": "ok",
 				},
 			);
 			return;
+		});
+	}
+}).delete((req, res) => {
+	var timerID = req.params.timer_id;
+
+	var query = "DELETE	FROM timers WHERE id="+timerID;
+	db.get(query, [], (err) => {
+		if(err){
+			console.log(err);
+			res.json( 
+				{
+					"done": "error",
+					"code": "0",
+				},
+			);
+			return;
 		}
-	);
+		res.json(
+			{
+				"done": "ok",
+			},
+		);
+		return;
+	});
 });
 
 
@@ -343,6 +334,7 @@ app.use((req, res, next) => {
 setInterval(() => {
 	timerTick();
 },1000);
+
 
 server.listen(port, "::", () => { // "192.168.42.221",
 	console.log("Server listening at port %d", port);

@@ -90,7 +90,7 @@ function timerTick() {
 						if (err) throw err;
 					});
 				}*/
-				var query = "UPDATE timers SET onTime="+result[i].onTime+", offTime="+result[i].offTime+" WHERE _id="+result[i].id;
+				var query = "UPDATE timers SET onTime="+result[i].onTime+", offTime="+result[i].offTime+" WHERE _id="+result[i]._id;
 				allQueries += query + "\n";
 				db.all(query, [], (err) => {
 					if (err) {
@@ -240,7 +240,7 @@ router.route("/timers/:timer_id").get((req, res) => {
 	
 
 	if(req.body.status === "restart"){
-		db.get("SELECT initialOnTime, initialOffTime FROM timers WHERE id="+timerID, [], (err, result) => {
+		db.get("SELECT initialOnTime, initialOffTime FROM timers WHERE _id="+timerID, [], (err, result) => {
 			cu_initialOffTime = result.initialOffTime;
 			cu_initialOnTime = result.initialOnTime;
 			var query = "UPDATE timers SET status=?, onTime=?, offTime=? WHERE _id=?";

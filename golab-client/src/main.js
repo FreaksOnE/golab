@@ -114,7 +114,8 @@ const store = new Vuex.Store({
 			};
 
 			return new Promise((resolve, reject) => {
-				axios.post("http://"+"localhost:3001/api"+"/timers", qs.stringify(newTimer)).then((response) => {
+				console.log("POST: "+apiAddr+"/timers");
+				axios.post(apiAddr+"/timers", qs.stringify(newTimer)).then((response) => {
 					if(response.data.done === "ok"){
 						store.dispatch("fetchTimers");
 						resolve();

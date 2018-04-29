@@ -143,7 +143,7 @@ router.route("/timers").get((req, res) => {
 			res.json( 
 				{
 					"done": "ok",
-					"data": "0",
+					"data": [],
 				},
 			);
 		}

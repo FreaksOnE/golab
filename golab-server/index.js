@@ -13,15 +13,6 @@ var db = new sqlite3.Database("golab.db", [], () => {
 	console.log("db opened successfully");
 });
 
-var writeToDB = function() {
-	db.all("SELECT * FROM timers", (err, rows) => {
-		console.log(rows);
-	});	
-	//db.close();
-};
-
-writeToDB();
-
 // eslint-disable-next-line
 /*function writeTest() {
 	var pinVal = true;
@@ -99,7 +90,7 @@ function timerTick() {
 						if (err) throw err;
 					});
 				}*/
-				var query = "UPDATE timers SET onTime="+result[i].onTime+", offTime="+result[i].offTime+" WHERE id="+result[i].id;
+				var query = "UPDATE timers SET onTime="+result[i].onTime+", offTime="+result[i].offTime+" WHERE _id="+result[i].id;
 				allQueries += query + "\n";
 				db.all(query, [], (err) => {
 					if (err) {
@@ -203,7 +194,7 @@ router.route("/timers").get((req, res) => {
 router.route("/timers/:timer_id").get((req, res) => {
 	var timerID = req.params.timer_id;
 
-	var query = "SELECT * FROM timers WHERE id=?";
+	var query = "SELECT * FROM timers WHERE _id=?";
 	db.all(query, [timerID,], (err, result) => {
 		if(err){
 			console.log(err);
@@ -252,7 +243,7 @@ router.route("/timers/:timer_id").get((req, res) => {
 		db.get("SELECT initialOnTime, initialOffTime FROM timers WHERE id="+timerID, [], (err, result) => {
 			cu_initialOffTime = result.initialOffTime;
 			cu_initialOnTime = result.initialOnTime;
-			var query = "UPDATE timers SET status=?, onTime=?, offTime=? WHERE id=?";
+			var query = "UPDATE timers SET status=?, onTime=?, offTime=? WHERE _id=?";
 			db.get(query, ["active", cu_initialOnTime, cu_initialOffTime,], (err) => {
 				if(err){
 					console.log(err);
@@ -273,7 +264,7 @@ router.route("/timers/:timer_id").get((req, res) => {
 			});
 		});
 	} else {
-		var query = "UPDATE timers SET status=?, timerType=?, onTime=?, offTime=? WHERE id=?";
+		var query = "UPDATE timers SET status=?, timerType=?, onTime=?, offTime=? WHERE _id=?";
 		db.get(query, ["active", cu_initialOnTime, cu_initialOffTime,], (err) => {
 			if(err){
 				console.log(err);
@@ -296,7 +287,7 @@ router.route("/timers/:timer_id").get((req, res) => {
 }).delete((req, res) => {
 	var timerID = req.params.timer_id;
 
-	var query = "DELETE	FROM timers WHERE id="+timerID;
+	var query = "DELETE	FROM timers WHERE _id="+timerID;
 	db.get(query, [], (err) => {
 		if(err){
 			console.log(err);

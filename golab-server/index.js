@@ -100,7 +100,7 @@ function timerTick() {
 			}
 			//console.log(allQueries);
 		} else {
-			console.log("no timers atm.");
+			//console.log("no timers atm.");
 		}
 	});	
 }

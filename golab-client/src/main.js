@@ -135,10 +135,14 @@ const store = new Vuex.Store({
 				console.log(apiAddr+"/timers");
 				axios.get(apiAddr+"/timers").then(response => {
 					if(response.data.done === "ok"){
-						response.data.data.forEach((elem) => {
-							elem.selected = false;
-						});
-						context.commit("FETCH_TIMERS", response.data.data);
+						if(response.data.data.length > 0){
+							response.data.data.forEach((elem) => {
+								elem.selected = false;
+							});
+							context.commit("FETCH_TIMERS", response.data.data);
+						} else {
+							context.commit("FETCH_TIMERS", []);
+						}
 						resolve();
 					} else {
 						reject();

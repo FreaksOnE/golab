@@ -28,6 +28,7 @@ var db = new sqlite3.Database("golab.db", [], () => {
 var cors = require("cors");
 
 //var whitelist = ["http://localhost:8080", "http://192.168.1.10:3001", "http://192.168.1.10", "*", ];
+// eslint-disable-next-line
 var corsOptions = {
 	origin: function (origin, callback) {
 		callback(null, true);
@@ -57,6 +58,16 @@ app.use(cors());
 	}
 });*/
 
+db.all("SELECT * FROM timers", (err, result) => {
+	if(result.length > 0) {
+		result.forEach(elem => {
+			gpio.setup(elem.portNum , gpio.DIR_OUT);
+			console.log("Pin "+elem.portNum+" => Output.");
+		});
+	}
+});
+
+
 app.use(morgan("dev"));
 
 app.use(bodyParser.urlencoded({ extended: true, }));
@@ -69,6 +80,7 @@ var router = express.Router();
 function timerTick() {
 	db.all("SELECT * FROM timers WHERE status='active'", (err, result) => {
 		if(result.length > 0) {
+			// eslint-disable-next-line
 			var allQueries = "";
 			for(var i = 0; i < result.length; i++){
 				if(result[i].offTime > 0){
@@ -80,16 +92,16 @@ function timerTick() {
 					result[i].onTime = result[i].initialOnTime;
 					result[i].offTime = result[i].initialOffTime;
 				}
-				/*if(result[i].offTime === 0){
+				if(result[i].offTime === 0){
 					gpio.write(result[i].portNum, true, (err) => {
 						if (err) throw err;
-						//console.log("pin "+result[i].portNum+" is on");
+						console.log("Pin "+result[i].portNum+" is on.");
 					});
 				} else {
 					gpio.write(result[i].portNum, false, (err) => {
 						if (err) throw err;
 					});
-				}*/
+				}
 				var query = "UPDATE timers SET onTime="+result[i].onTime+", offTime="+result[i].offTime+" WHERE _id="+result[i]._id;
 				allQueries += query + "\n";
 				db.all(query, [], (err) => {

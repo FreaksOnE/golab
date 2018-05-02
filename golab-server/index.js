@@ -95,6 +95,7 @@ function timerTick() {
 				if(result[i].offTime === 0){
 					gpio.write(result[i].portNum, true, (err) => {
 						if (err) throw err;
+						console.log(result);
 						console.log("Pin "+result[i].portNum+" is on.");
 					});
 				} else {

@@ -82,35 +82,35 @@ function timerTick() {
 		if(result.length > 0) {
 			// eslint-disable-next-line
 			var allQueries = "";
-			for(var i = 0; i < result.length; i++){
-				if(result[i].offTime > 0){
-					result[i].offTime -= 1;
+			result.forEach(elem => {
+				if(elem.offTime > 0){
+					elem.offTime -= 1;
 				} else {
-					result[i].onTime -= 1;
+					elem.onTime -= 1;
 				}
-				if(result[i].onTime < 0){
-					result[i].onTime = result[i].initialOnTime;
-					result[i].offTime = result[i].initialOffTime;
+				if(elem.onTime < 0){
+					elem.onTime = elem.initialOnTime;
+					elem.offTime = elem.initialOffTime;
 				}
-				if(result[i].offTime === 0){
-					gpio.write(result[i].portNum, true, (err) => {
+				if(elem.offTime === 0){
+					gpio.write(elem.portNum, true, (err) => {
 						if (err) throw err;
-						console.log(result[i]);
-						console.log("Pin "+result[i].portNum+" is on.");
+						console.log(elem);
+						console.log("Pin "+elem.portNum+" is on.");
 					});
 				} else {
-					gpio.write(result[i].portNum, false, (err) => {
+					gpio.write(elem.portNum, false, (err) => {
 						if (err) throw err;
 					});
 				}
-				var query = "UPDATE timers SET onTime="+result[i].onTime+", offTime="+result[i].offTime+" WHERE _id="+result[i]._id;
+				var query = "UPDATE timers SET onTime="+elem.onTime+", offTime="+elem.offTime+" WHERE _id="+elem._id;
 				allQueries += query + "\n";
 				db.all(query, [], (err) => {
 					if (err) {
 						console.log(err);
 					}
 				});
-			}
+			});
 			//console.log(allQueries);
 		} else {
 			//console.log("no timers atm.");

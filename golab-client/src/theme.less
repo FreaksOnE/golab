@@ -1,4 +1,4 @@
-@import '~iview/src/styles/index.less';
+@import "~iview/src/styles/index.less";
 
 // Prefix
 @css-prefix             : ivu-;
@@ -8,9 +8,9 @@
 @primary-color          : #2d8cf0;
 @info-color             : #2db7f5;
 @success-color          : #19be6b;
-@warning-color          : #ff9900;
+@warning-color          : #f90;
 @error-color            : #ed3f14;
-@link-color             : #2D8cF0;
+@link-color             : #2d8cf0;
 @link-hover-color       : tint(@link-color, 20%);
 @link-active-color      : shade(@link-color, 5%);
 @selected-color         : fade(@primary-color, 90%);
@@ -65,7 +65,7 @@
 @shadow-right           : 1px 0 6px 1px @shadow-color;
 
 .ivu-card.ivu-card-shadow:hover {
-	box-shadow: 0 1px 6px 1px @shadow-color;
+  box-shadow: 0 1px 6px 1px @shadow-color;
 }
 
 // Button
@@ -114,270 +114,271 @@
 @layout-zero-trigger-height  : 42px;
 
 .ivu-icon.ivu-icon-information-circled {
-	margin: 0px 5px;
+  margin: 0 5px;
 }
 
 .ivu-icon.active {
-	color: @primary-color !important;
+  color: @primary-color !important;
 }
 
 .ivu-layout {
-	background: rgb(238, 239, 241);
-	transition: background @transition-time @ease-in-out;
+  background: rgb(238, 239, 241);
+  transition: background @transition-time @ease-in-out;
 }
 
 .ivu-layout.edit-mode {
-	background: url("./assets/grid-bg.png");
+  background: url("./assets/grid-bg.png");
 }
 
 .ivu-layout-header {
-	box-shadow: @shadow-base;
-	z-index: 1;
-	color: @tooltip-color !important;
+  z-index: 1;
+  color: @tooltip-color !important;
+  box-shadow: @shadow-base;
 }
 
 .ivu-layout-footer {
-	display: none;
+  display: none;
 }
 
 .ivu-layout-sider {
-	margin: 10px 0px 20px 0px;
-	background: none;
+  margin: 10px 0 20px 0;
+  background: none;
 }
 
 .ivu-layout-sider .sider-content .ivu-icon {
-	color: @tooltip-color !important;
+  color: @tooltip-color !important;
 }
 
 .ivu-layout-sider input {
-	color: @tooltip-color !important;
+  color: @tooltip-color !important;
 }
 
 .ivu-layout-sider-trigger {
-	position: absolute !important;
-	border-bottom-right-radius: 10px;
-	background: @background-base-color;
+  position: absolute !important;
+  background: @background-base-color;
+  border-bottom-right-radius: 10px;
 }
 
 .sider-tabs {
-	height: 10%;
-	width: 300px;
-	position: absolute;
-	top: 0px;
-	right: 0px;
-	z-index: 1;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  width: 300px;
+  height: 6%;
 }
 
-.sider-tabs .ivu-tabs {
 
-}
 
 .siderCollapsedMenu {
-	position: absolute;
-	top: 0px;
-	width: 78px;
-	height: 100%;
-	right: 0px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 78px;
+  height: 100%;
 }
 
 .siderCollapsedMenu p {
-	transform: rotate(90deg);
-	color: #fff;
-	top: 230px;
-	position: relative;
-	text-align: center;
-	letter-spacing: 5px;
-	font-size: 16px;
-	user-select: none;
-	cursor: default;
+  position: relative;
+  top: 230px;
+  color: #fff;
+  font-size: 16px;
+  letter-spacing: 5px;
+  text-align: center;
+  transform: rotate(90deg);
+  cursor: default;
+  user-select: none;
 }
 
 .sider-tabs .ivu-tabs-bar {
-	margin-bottom: 0px !important;
+  margin-bottom: 0 !important;
 }
 
 .sider-content {
-	height: 90%;
-	width: 300px;
-	background: @layout-header-background;
-	box-shadow: @shadow-base;
-	border-bottom-right-radius: 10px; 
-	border-top-right-radius: 10px; 
-	position: absolute;
-	top: 10%;
-	right: 0px;
-	overflow: hidden;
-	min-height: 500px;
+  position: absolute;
+  top: 6%;
+  right: 0;
+  overflow: hidden;
+  width: 300px;
+  height: 94%;
+  min-height: 500px;
+  background: @layout-header-background;
+  box-shadow: @shadow-base;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 
 .ivu-input-number {
-	border-color: @layout-header-background;
+  border-color: @layout-header-background;
 }
 
 .ivu-input-number-handler-wrap {
-	background: #6d7891;
-	border-color: @primary-color;
+  background: #6d7891;
+  border-color: @primary-color;
 }
 
 .ivu-input-number-handler-down {
-	border-color: @primary-color;
+  border-color: @primary-color;
 }
 
 .ivu-tabs-bar {
-    border-bottom: 1px solid #dddee1;
+  border-bottom: 1px solid #dddee1;
 }
 
 .ivu-layout-sider .title {
-	font-size: 16px;
-	font-weight: 800;
-	margin: 25px 0px 5px 0px;
-	color: @tooltip-color;
+  margin: 25px 0 5px 0;
+  color: @tooltip-color;
+  font-size: 16px;
+  font-weight: 800;
 }
 
 .ivu-layout-content {
-	height: calc(100vh - 66px);
+  height: calc(100vh - 66px);
 }
 
 .ivu-form-item-label {
-	color: @tooltip-color !important;
+  color: @tooltip-color !important;
 }
 
 .ivu-form-item {
-	margin-bottom: 16px;
+  margin-bottom: 16px;
 }
 
 .ivu-layout-sider .ivu-form {
-	margin-top: 10px;
+  margin-top: 10px;
 }
 
 .ivu-date-picker .ivu-icon {
-	cursor: default;
+  cursor: default;
 }
 
 .ivu-icon-ios-clock-outline::before {
-	content: "\F3B3" !important;
+  content: "\F3B3" !important;
 }
 
 label {
-	color: @tooltip-color !important;
+  color: @tooltip-color !important;
 }
 
 .ivu-input-number {
-	width: 100% !important;
+  width: 100% !important;
 }
 
-.ivu-tabs-content, .ivu-layout-content {
-	min-height: 100%;
+.ivu-tabs-content,
+.ivu-layout-content {
+  min-height: 100%;
 }
 
 .ivu-card {
-	margin: 0px 5px 20px 5px;
+  margin: 0 5px 20px 5px;
 }
 
 .ivu-card .ivu-card-head {
-	transition: background @transition-time @ease-in-out;
+  transition: background @transition-time @ease-in-out;
 }
 
 .ivu-card.edit-mode .ivu-card-head {
-	background: @background-light-color !important;
-	color: @tooltip-color;
+  color: @tooltip-color;
+  background: @background-light-color !important;
 }
 
 .ivu-card.edit-mode.selected .ivu-card-head {
-	background: @primary-color !important;
-	color: @tooltip-color;
+  color: @tooltip-color;
+  background: @primary-color !important;
 }
 
 .ivu-card.active .ivu-card-head {
-	background: @success-color;
-	color: @tooltip-color;
+  color: @tooltip-color;
+  background: @success-color;
 }
 
 .ivu-card.paused .ivu-card-head {
-	background: @warning-color;
-	color: @tooltip-color;
+  color: @tooltip-color;
+  background: @warning-color;
 }
 
 .ivu-card.stopped .ivu-card-head {
-	background: @error-color;
-	color: @tooltip-color;
+  color: @tooltip-color;
+  background: @error-color;
 }
 
-.ivu-card-head p, .ivu-card-head-inner {
-	color: inherit !important;
-	user-select: none;
-	cursor: default;
+.ivu-card-head p,
+.ivu-card-head-inner {
+  color: inherit !important;
+  cursor: default;
+  user-select: none;
 }
 
 .ivu-card-head .ivu-icon {
-	padding: 0px 5px;
-	font-size: 16px;
+  padding: 0 5px;
+  font-size: 16px;
 }
 
 .ivu-card-body .ivu-icon {
-	padding: 5px 5px;
-	font-size: 26px;
-	transition: color @transition-time @ease-in-out;
+  padding: 5px 5px;
+  font-size: 26px;
+  transition: color @transition-time @ease-in-out;
 }
 
 .ivu-card-body {
-	padding: 5px;
-	overflow: hidden;
-	cursor: default;
-	user-select: none;
+  overflow: hidden;
+  padding: 5px;
+  cursor: default;
+  user-select: none;
 }
 
 .ivu-card-body .ivu-col {
-	padding: 0px 4px 0px 0px !important;
+  padding: 0 4px 0 0 !important;
 }
 
 .ivu-card-head .ivu-icon-android-more-vertical {
-	position: relative;
-	font-size: 16px;
-	cursor: pointer;
-	display: block;
-	padding: 2px 10px;
-	transition: all @transition-time @ease-in-out;
-	border-radius: 4px;
+  position: relative;
+  display: block;
+  padding: 2px 10px;
+  font-size: 16px;
+  border-radius: 4px;
+  transition: all @transition-time @ease-in-out;
+  cursor: pointer;
 }
 
 .ivu-tabs-nav .ivu-tabs-tab .ivu-icon {
-	margin-right: 0px;
+  margin-right: 0;
 }
 
 .ivu-tabs {
-/*	min-height: 100%;*/
+  /*	min-height: 100%;*/
+  height: 50px;
 }
 
 .ivu-cascader {
-	display: inline-block;
+  display: inline-block;
 }
 
 .ivu-card-head .ivu-cascader {
-	position: absolute;
-	top: 15px;
-	right: 16px;
+  position: absolute;
+  top: 15px;
+  right: 16px;
 }
 
 .ivu-cascader-menu {
-	height: auto !important;
+  height: auto !important;
 }
 
 .ivu-cascader-visible .ivu-icon {
-	background: rgba(255,255,255,.36);
+  background: rgba(255,255,255,.36);
 }
 
 .ivu-select-dropdown {
-	right: 5px;
+  right: 5px;
 }
 
 .ivu-cascader-menu .ivu-cascader-menu-item-active {
-	color: #495060;
-	background: @background-color-base;
+  color: #495060;
+  background: @background-color-base;
 }
 
 .ivu-select-dropdown > div > span {
-	display: block;
+  display: block;
 }
 
 .fade-enter-active,
@@ -390,94 +391,91 @@ label {
   opacity: 0;
 }
 
-.fade-leave-active {
 
-}
 
 .fade-move {
-  transition: transform 0.4s @ease-in-out;
+  transition: transform .4s @ease-in-out;
 }
 
 .fab.pointer .material-icons {
-	width: 100%;
-	height: 100%;
-	text-align: center;
-	line-height: 64px;
-	right: 0px;
-	bottom: 0px;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  line-height: 64px;
+  text-align: center;
 }
 
 .fab {
-	box-shadow: @shadow-base !important;
+  box-shadow: @shadow-base !important;
 }
 
 .layout-logo {
-	background: @primary-color;
+  background: @primary-color;
 }
 
 .fab-wrapper {
-	margin: 10px;
-	right: 2vw !important;
-	bottom: 2vh !important;
+  right: 2vw !important;
+  bottom: 2vh !important;
+  margin: 10px;
 }
 
 .fab.pointer {
-	transition: all @transition-time @ease-in-out;
+  transition: all @transition-time @ease-in-out;
 }
 
 .fab-wrapper.open .fab.pointer {
-	border-radius: 50% !important;
+  border-radius: 50% !important;
 }
 
 .fab-wrapper .fab.pointer {
-	border-radius: 10px !important;
+  border-radius: 10px !important;
 }
 
 .sider-tabs .ivu-tabs {
-	top: calc(100% - 37px);
+  top: calc(100% - 37px);
 }
 
 .sider-tabs .ivu-tabs .ivu-tabs-nav {
-	margin-left: 3px;
+  margin-left: 3px;
 }
 
 .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-nav-container {
-	height: 100% !important;
+  height: 100% !important;
 }
 
 .sider-tabs .ivu-tabs .ivu-tabs-nav .ivu-tabs-tab {
-	height: 100% !important;
-	padding: 10px 25px 8px 18px;
-	border: 1px solid @background-light-color;
-	border-bottom: none;
-	background: @background-light-color;
-	color: @tooltip-color;
-	border-top-right-radius: 8px;
-	border-top-left-radius: 8px;
+  height: 100% !important;
+  padding: 10px 25px 8px 18px;
+  color: @tooltip-color;
+  background: @background-light-color;
+  border: 1px solid @background-light-color;
+  border-bottom: none;
+  border-top-right-radius: 8px;
+  border-top-left-radius: 8px;
 }
 
 .sider-tabs .ivu-tabs .ivu-tabs-nav .ivu-tabs-tab.ivu-tabs-tab-active {
-	background: @background-base-color;
-	border: 1px solid @background-base-color;
-	border-bottom: none;
-
+  background: @background-base-color;
+  border: 1px solid @background-base-color;
+  border-bottom: none;
 }
 
 #pre-loader {
-	position: fixed;
-	height: 100vh;
-	width: 100vw;
-	z-index: 10000;
-	background: #fff;
+  position: fixed;
+  z-index: 10000;
+  width: 100vw;
+  height: 100vh;
+  background: #fff;
 }
 
 #pre-loader .ivu-spin {
-	position: absolute;
-	left: 0px;
-	right: 0px;
-	margin: auto;
-	width: 32px;
-	top: calc(50vh - 16px);
+  position: absolute;
+  top: calc(50vh - 16px);
+  right: 0;
+  left: 0;
+  width: 32px;
+  margin: auto;
 }
 
 // Legend
@@ -504,8 +502,8 @@ label {
 
 
 .ivu-input-number-input {
-	background: none;
-	color: #eee;
+  color: #eee;
+  background: none;
 }
 
 // Tag

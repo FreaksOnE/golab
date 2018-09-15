@@ -1,9 +1,11 @@
 <template>
 	<div id="app">
 		<transition name="fade">
-		<div id="pre-loader" v-if="preLoad">
-			<Spin size="large"></Spin>
-		</div>
+			<div 
+				v-if="preLoad"
+				id="pre-loader">
+				<Spin size="large"/>
+			</div>
 		</transition>
 		<div class="layout">
 			<Layout>
@@ -11,48 +13,86 @@
 					<div class="layout-logo" />
 					<div class="layout-status">
 						<Row>
-							<i-col span="8" offset="8">
+							<i-col 
+								span="8" 
+								offset="8">
 								<p>
-									<Icon type="connection-bars"></Icon>Server: Online</p>
+								<Icon type="connection-bars"/>Server: Online</p>
 							</i-col>
 							<i-col span="8">
 								<p>
-									<Icon type="plus"></Icon>Total Timers: {{ timers.length }}</p>
+								<Icon type="plus"/>Total Timers: {{ timers.length }}</p>
 							</i-col>
 						</Row>
 					</div>
 				</Header>
 				<layout :class="{ 'edit-mode': editMode }">
-					<Sider :width="300" collapsible :collapsed-width="78" v-model="isCollapsed" @on-collapse="handleSiderCollapse">
+					<Sider 
+						:width="300" 
+						:collapsed-width="78" 
+						v-model="isCollapsed" 
+						collapsible 
+						@on-collapse="handleSiderCollapse">
 						<div class="sider-tabs">
-							<Tabs @on-click="handleSiderTab" type="card">
-								<TabPane name="create" label="Add" icon="plus"></TabPane>
-								<TabPane name="edit" label="Edit" icon="edit"></TabPane>
+							<Tabs 
+								type="card"
+								@on-click="handleSiderTab">
+								<TabPane 
+									name="create" 
+									label="Add" 
+									icon="plus"/>
+								<TabPane 
+									name="edit" 
+									label="Edit" 
+									icon="edit"/>
 							</Tabs>
 						</div>
 						<div class="sider-content">
 							<Row>
-								<transition name="sider-content-slide" enter-active-class="animated slideInLeft" leave-active-class="animated slideOutLeft">
-									<i-col span="24" v-show="siderOpen">
+								<transition 
+									name="sider-content-slide" 
+									enter-active-class="animated slideInLeft" 
+									leave-active-class="animated slideOutLeft">
+									<i-col 
+										v-show="siderOpen"
+										span="24">
 										<Row>
-											<i-col span="20" offset="2">
+											<i-col 
+												span="20" 
+												offset="2">
 												<div class="title">
-												<p v-if="!editMode">Add new timer</p>
-												<p v-if="editMode">Edit timer</p>
+													<p v-if="!editMode">Add new timer</p>
+													<p v-if="editMode">Edit timer</p>
 												</div>
 											</i-col>
 										</Row>
 										<Row>
-											<i-col span="20" offset="2">
+											<i-col 
+												span="20" 
+												offset="2">
 												<Form>
 													<FormItem label="Tag">
-														<Input icon="pricetag" v-model="formItem.tag" placeholder="Enter tag..." style="max-width: 217px" />
+														<Input 
+															v-model="formItem.tag" 
+															icon="pricetag" 
+															placeholder="Enter tag..." 
+															style="max-width: 217px"></input>
 													</FormItem>
 													<FormItem label="">
-														<TimePicker type="time" value="ZZ" v-model="formItem.onTime" placeholder="On time ex. 00:00:00" style="width: 100%"></TimePicker>
+														<TimePicker 
+															v-model="formItem.onTime" 
+															type="time" 
+															value="ZZ" 
+															placeholder="On time ex. 00:00:00" 
+															style="width: 100%"/>
 													</FormItem>
 													<FormItem label="">
-														<TimePicker type="time" value="ZZ" v-model="formItem.offTime" placeholder="Off time ex. 00:00:00" style="width: 100%"></TimePicker>
+														<TimePicker 
+															v-model="formItem.offTime" 
+															type="time" 
+															value="ZZ" 
+															placeholder="Off time ex. 00:00:00" 
+															style="width: 100%"/>
 													</FormItem>
 													<FormItem label="Type">
 														<RadioGroup v-model="formItem.type">
@@ -62,20 +102,39 @@
 														</RadioGroup>
 													</FormItem>
 													<FormItem label="Port number">
-														<InputNumber :max="10" :min="1" :step="1" v-model="formItem.portNum"></InputNumber>
+														<InputNumber 
+															:max="10" 
+															:min="1" 
+															:step="1" 
+															v-model="formItem.portNum"/>
 													</FormItem>
 													<FormItem>
-														<Button v-if="!editMode" type="primary" long :loading="formItem.loading" @click="submitTimer">
+														<Button 
+															v-if="!editMode" 
+															:loading="formItem.loading" 
+															type="primary" 
+															long 
+															@click="submitTimer">
 															<span v-if="!formItem.loading">Add Timer</span>
 															<span v-else>Loading...</span>
 														</Button>
-														<Button v-if="editMode" type="success" long :loading="formItem.loading" @click="editTimer">
+														<Button 
+															v-if="editMode" 
+															:loading="formItem.loading" 
+															type="success" 
+															long 
+															@click="editTimer">
 															<span v-if="!formItem.loading">Submit</span>
 															<span v-else>Loading...</span>
 														</Button>
 													</FormItem>
 													<FormItem>
-														<Button disabled type="primary" long :loading="formItem.loading" @click="submitTimer">
+														<Button 
+															:loading="formItem.loading" 
+															disabled 
+															type="primary" 
+															long 
+															@click="submitTimer">
 															<span v-if="!formItem.loading">Add Button
 																<icon type="information-circled" />
 															</span>
@@ -88,8 +147,13 @@
 									</i-col>
 								</transition>
 
-								<transition name="sliderIconIn" enter-active-class="animated slideInRight" leave-active-class="animated slideOutRight">
-									<div class="siderCollapsedMenu" v-show="!siderOpen">
+								<transition 
+									name="sliderIconIn" 
+									enter-active-class="animated slideInRight" 
+									leave-active-class="animated slideOutRight">
+									<div 
+										v-show="!siderOpen"
+										class="siderCollapsedMenu">
 										<Row>
 											<i-col span="24">
 												<p style="transform: rotate(90deg)">OPEN</p>
@@ -102,45 +166,99 @@
 					</Sider>
 					<Content :style="{padding: '10px 50px'}">
 						<Tabs @on-click="handleTimerTab">
-							<TabPane :disabled="editMode" name="all" label="All" icon="asterisk"></TabPane>
-							<TabPane :disabled="editMode" name="lamp" label="Lamp" icon="lightbulb"></TabPane>
-							<TabPane :disabled="editMode" name="pump" label="Pump" icon="waterdrop"></TabPane>
-							<TabPane :disabled="editMode" name="fan" label="Fan" icon="thermometer"></TabPane>
+							<TabPane 
+								:disabled="editMode" 
+								name="all" 
+								label="All" 
+								icon="asterisk"/>
+							<TabPane 
+								:disabled="editMode" 
+								name="lamp" 
+								label="Lamp" 
+								icon="lightbulb"/>
+							<TabPane 
+								:disabled="editMode" 
+								name="pump" 
+								label="Pump" 
+								icon="waterdrop"/>
+							<TabPane 
+								:disabled="editMode" 
+								name="fan" 
+								label="Fan" 
+								icon="thermometer"/>
 						</Tabs>
 						<div class="timer-container">
 							<transition name="fade">
-								<Row v-show="groupedTimers[showTab].length === 0">
+								<!-- <Row v-show="groupedTimers[showTab].length === 0">
 									<i-col span="24" offset="0">
-										<!--<Row>
+										<Row>
 										<i-col span="24" offset="0">
 											<p>Use the form to create content.</p>
 										</i-col>
-									</Row>-->
+									</Row>
 										<Row>
 											<i-col span="24" offset="0">
-												<img :disabled="editMode" src="./assets/plus-bg.png" style="width: 400px;margin: auto;position: absolute;left: 0;right: 0;padding: 75px 0;z-index:0;" />
+												
 											</i-col>
 										</Row>
 									</i-col>
-								</Row>
+								</Row> -->
+								<!-- <img 
+									v-show="groupedTimers[showTab].length === 0" 
+									:disabled="editMode" 
+									src="./assets/plus-bg.png" 
+									style="width: 400px;margin: auto;position: absolute;left: 0;right: 0;padding: 75px 0;z-index:0;top:20%;" > -->
 							</transition>
-							<Row v-for="(timerRow, index) in groupedTimers[showTab]" :gutter="16" :key="index">
-								<transition-group name="fade" mode="out-in">
-									<i-col :xs="24" :sm="24" :md="12" :lg="6" v-for="(timerElem, index2) in timerRow" :key="index2" :class="timerElem.timerType"
-									v-if="showTab === 'all' || showTab === timerElem.timerType">
-										<Card @click.native="handleCardClick(timerElem._id)" :bordered="true" shadow style="width: auto;" :class="[timerElem.status, { 'edit-mode': editMode, 'selected': timerElem.selected }]">
-											<p slot="title" style="line-height:20px;">
-												<icon v-if="timerElem.timerType === 'lamp'" type="lightbulb"></icon>
-												<icon v-else-if="timerElem.timerType === 'pump'" type="waterdrop"></icon>
-												<icon v-else-if="timerElem.timerType === 'fan'" type="thermometer"></icon>
+							<Row 
+								v-for="(timerRow, index) in groupedTimers[showTab]" 
+								:gutter="16" 
+								:key="index">
+								<transition-group 
+									name="fade" 
+									mode="out-in">
+									<i-col 
+										v-for="(timerElem, index2) in timerRow" 
+										v-if="showTab === 'all' || showTab === timerElem.timerType"
+										:xs="24" 
+										:sm="24" 
+										:md="12" 
+										:lg="6" 
+										:key="index2" 
+										:class="timerElem.timerType">
+										<Card 
+											:bordered="true" 
+											:class="[timerElem.status, { 'edit-mode': editMode, 'selected': timerElem.selected }]"
+											shadow 
+											style="width: auto;" 
+											@click.native="handleCardClick(timerElem._id)">
+											<p 
+												slot="title" 
+												style="line-height:20px;">
+												<icon 
+													v-if="timerElem.timerType === 'lamp'" 
+													type="lightbulb"/>
+												<icon 
+													v-else-if="timerElem.timerType === 'pump'" 
+													type="waterdrop"/>
+												<icon 
+													v-else-if="timerElem.timerType === 'fan'" 
+													type="thermometer"/>
 												{{ timerElem.tag }}
-												<Cascader :data="data" @on-change="cardDoAction($event, timerElem._id)" :key="timerElem._id">
-													<Icon type="android-more-vertical"></Icon>
+												<Cascader 
+													:data="data" 
+													:key="timerElem._id"
+													@on-change="cardDoAction($event, timerElem._id)">
+													<Icon type="android-more-vertical"/>
 												</Cascader>
 											</p>
 											<Row style="min-width: 170px;">
-												<i-col span="8" style="text-align: center;">
-													<icon type="android-time" :class="{ active: !timerElem.offTime && timerElem.status != 'stopped' && !editMode }" style="cursor: default;"></icon>
+												<i-col 
+													span="8" 
+													style="text-align: center;">
+													<icon 
+														:class="{ active: !timerElem.offTime && timerElem.status != 'stopped' && !editMode }" 
+														type="android-time" 
+														style="cursor: default;"/>
 												</i-col>
 												<i-col span="16">
 													<Row>
@@ -148,8 +266,12 @@
 															<p style="text-align:right;">On Time:</p>
 														</i-col>
 														<i-col span="12">
-															<p v-if="!editMode" style="text-align:left;">{{ formatTime(timerElem.onTime) }}</p>
-															<p v-if="editMode" style="text-align:left;">{{ formatTime(timerElem.initialOnTime) }}</p>
+															<p 
+																v-if="!editMode" 
+																style="text-align:left;">{{ formatTime(timerElem.onTime) }}</p>
+															<p 
+																v-if="editMode" 
+																style="text-align:left;">{{ formatTime(timerElem.initialOnTime) }}</p>
 														</i-col>
 													</Row>
 													<Row>
@@ -157,21 +279,35 @@
 															<p style="text-align:right;">Off Time:</p>
 														</i-col>
 														<i-col span="12">
-															<p v-if="!editMode" style="text-align:left;">{{ formatTime(timerElem.offTime) }}</p>
-															<p v-if="editMode" style="text-align:left;">{{ formatTime(timerElem.initialOffTime) }}</p>
+															<p 
+																v-if="!editMode" 
+																style="text-align:left;">{{ formatTime(timerElem.offTime) }}</p>
+															<p 
+																v-if="editMode" 
+																style="text-align:left;">{{ formatTime(timerElem.initialOffTime) }}</p>
 														</i-col>
 													</Row>
 												</i-col>
 											</Row>
-											<div v-if="editMode" class="cover"/>
+											<div 
+												v-if="editMode" 
+												class="cover"/>
 										</Card>
 									</i-col>
 								</transition-group>
 							</Row>
 						</div>
 					</Content>
-					<fab :disabled="editMode" @change="fabChange($event.val)" :main-icon="fabItem.icon" :position="fabItem.position" :bg-color="fabItem.bgColor" :actions="fabItem.fabActions"
-					@restart="restartServer" @powerOff="powerOffServer" :class="{ open: fabOpen }"></fab>
+					<fab 
+						:disabled="editMode" 
+						:main-icon="fabItem.icon" 
+						:position="fabItem.position" 
+						:bg-color="fabItem.bgColor" 
+						:actions="fabItem.fabActions"
+						:class="{ open: fabOpen }"
+						@restart="restartServer" 
+						@powerOff="powerOffServer" 
+						@change="fabChange($event.val)"/>
 				</layout>
 				<Footer class="layout-footer-center">2018 &copy;</Footer>
 			</Layout>
@@ -197,7 +333,6 @@ export default {
 	components: {
 		fab,
 	},
-	mounted: function () { },
 	data: function () {
 		return {
 			editMode: false,
@@ -268,6 +403,7 @@ export default {
 			return this.$store.getters.getTimers;
 		},
 	},
+	mounted: function () { },
 	methods: {
 		formatTime: function (val) {
 			var tempDate = new Date(val * 1000);
@@ -316,8 +452,8 @@ export default {
 				});
 			} else if (
 				val[0] === "active" ||
-					val[0] === "paused" ||
-					val[0] === "stopped"
+				val[0] === "paused" ||
+				val[0] === "stopped"
 			) {
 				console.log(thisCard._id);
 				this.$store.dispatch("changeStatus", {
@@ -448,148 +584,152 @@ export default {
 
 <style>
 	@font-face {
-		font-family: "Material Icons";
-		font-style: normal;
-		font-weight: 400;
-		src: url("./assets/fonts/MaterialIcons-Regular.eot");
-		/* For IE6-8 */
-		src: local("Material Icons"), local("MaterialIcons-Regular"),
-		url("./assets/fonts/MaterialIcons-Regular.svg#MaterialIcons-Regular") format("svg"),
-		url("./assets/fonts/MaterialIcons-Regular.woff2") format("woff2"),
-		url("./assets/fonts/MaterialIcons-Regular.woff") format("woff"),
-		url("./assets/fonts/MaterialIcons-Regular.ttf") format("truetype");
-	}
+  font-family: "Material Icons";
+  font-style: normal;
+  font-weight: 400;
 
-	.ivu-card > .cover {
-		height: 100%;
-		width: 100%;
-		z-index: 100;
-		cursor: pointer;
-	}
-
-.ivu-card > .cover::hover {
-	background: rgba(0, 0, 0, 0.1);
+  src: url("./assets/fonts/MaterialIcons-Regular.eot");
+  /* For IE6-8 */
+  src: local("Material Icons"), local("MaterialIcons-Regular"),
+  url("./assets/fonts/MaterialIcons-Regular.svg#MaterialIcons-Regular") format("svg"),
+  url("./assets/fonts/MaterialIcons-Regular.woff2") format("woff2"),
+  url("./assets/fonts/MaterialIcons-Regular.woff") format("woff"),
+  url("./assets/fonts/MaterialIcons-Regular.ttf") format("truetype");
 }
 
-	.slideInLeft {
-		animation: slideInLeft 0.4s;
-	}
+.ivu-card > .cover {
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
 
-	.slideOutLeft {
-		animation: slideOutLeft 1s;
-	}
+.ivu-card > .cover::hover {
+  background: rgba(0, 0, 0, .1);
+}
 
-	.slideInRight {
-		animation: slideInRight .4s;
-	}
+.slideInLeft {
+  animation: slideInLeft .4s;
+}
 
-	.slideOutRight {
-		animation: slideOutRight .4s;
-	}
+.slideOutLeft {
+  animation: slideOutLeft 1s;
+}
 
-	.material-icons {
-		font-family: "Material Icons";
-		font-weight: normal;
-		font-style: normal;
-		font-size: 24px;
-		/* Preferred icon size */
-		display: inline-block;
-		line-height: 1;
-		text-transform: none;
-		letter-spacing: normal;
-		word-wrap: normal;
-		white-space: nowrap;
-		direction: ltr;
-		user-select: none;
+.slideInRight {
+  animation: slideInRight .4s;
+}
 
-		/* Support for all WebKit browsers. */
-		-webkit-font-smoothing: antialiased;
-		/* Support for Safari and Chrome. */
-		text-rendering: optimizeLegibility;
+.slideOutRight {
+  animation: slideOutRight .4s;
+}
 
-		/* Support for Firefox. */
-		-moz-osx-font-smoothing: grayscale;
+.material-icons {
+  /* Preferred icon size */
+  display: inline-block;
+  direction: ltr;
+  font-family: "Material Icons";
+  /* Support for IE. */
+  font-feature-settings: "liga";
+  font-size: 24px;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+  text-transform: none;
+  word-wrap: normal;
+  white-space: nowrap;
+  user-select: none;
+  /* Support for all WebKit browsers. */
 
-		/* Support for IE. */
-		font-feature-settings: "liga";
-	}
+  -webkit-font-smoothing: antialiased;
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+}
 
-	/* Rules for sizing the icon. */
+/* Rules for sizing the icon. */
 
-	.material-icons.md-18 {
-		font-size: 18px;
-	}
+.material-icons.md-18 {
+  font-size: 18px;
+}
 
-	.material-icons.md-24 {
-		font-size: 24px;
-	}
+.material-icons.md-24 {
+  font-size: 24px;
+}
 
-	.material-icons.md-36 {
-		font-size: 36px;
-	}
+.material-icons.md-36 {
+  font-size: 36px;
+}
 
-	.material-icons.md-48 {
-		font-size: 48px;
-	}
+.material-icons.md-48 {
+  font-size: 48px;
+}
 
-	/* Rules for using icons as black on a light background. */
+/* Rules for using icons as black on a light background. */
 
-	.material-icons.md-dark {
-		color: rgba(0, 0, 0, 0.54);
-	}
+.material-icons.md-dark {
+  color: rgba(0, 0, 0, .54);
+}
 
-	.material-icons.md-dark.md-inactive {
-		color: rgba(0, 0, 0, 0.26);
-	}
+.material-icons.md-dark.md-inactive {
+  color: rgba(0, 0, 0, .26);
+}
 
-	/* Rules for using icons as white on a dark background. */
+/* Rules for using icons as white on a dark background. */
 
-	.material-icons.md-light {
-		color: rgba(255, 255, 255, 1);
-	}
+.material-icons.md-light {
+  color: rgba(255, 255, 255, 1);
+}
 
-	.material-icons.md-light.md-inactive {
-		color: rgba(255, 255, 255, 0.3);
-	}
+.material-icons.md-light.md-inactive {
+  color: rgba(255, 255, 255, .3);
+}
 
-	.layout {
-		border: 1px solid #d7dde4;
-		background: #f5f7f9;
-		position: relative;
-		border-radius: 4px;
-		overflow: hidden;
-	}
+.layout {
+  position: relative;
+  overflow: hidden;
+  background: #f5f7f9;
+  border: 1px solid #d7dde4;
+  border-radius: 4px;
+}
 
-	.layout-logo {
-		width: 100px;
-		height: 30px;
-		/*  background: #5b6270;*/
-		border-radius: 3px;
-		float: left;
-		position: relative;
-		top: 15px;
-		left: 20px;
-	}
+.layout-logo {
+  position: relative;
+  top: 15px;
+  left: 20px;
+  float: left;
+  width: 100px;
+  height: 30px;
+  /*  background: #5b6270;*/
+  border-radius: 3px;
+}
 
-	.layout-nav {
-		width: 420px;
-		margin: 0 auto;
-		float: right;
-	}
+.layout-nav {
+  float: right;
+  width: 420px;
+  margin: 0 auto;
+}
 
-	.layout-status {
-		width: 420px;
-		margin: 0 auto;
-		margin-right: 20px;
-	}
+.layout-status {
+  width: 420px;
+  margin: 0 auto;
+  margin-right: 20px;
+}
 
-	.layout-status .ivu-icon {
-		font-size: 14px;
-		padding: 25px 8px;
-		float: left;
-	}
+.layout-status .ivu-icon {
+  float: left;
+  padding: 25px 8px;
+  font-size: 14px;
+}
 
-	.layout-footer-center {
-		text-align: center;
-	}
+.layout-footer-center {
+  text-align: center;
+}
+
+.timer-container {
+  position: relative;
+  height: calc(100% - 50px);
+}
 </style>

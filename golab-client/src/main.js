@@ -22,6 +22,7 @@ const socket = io.connect(apiAddr, { reconnect: true, });
 const store = new Vuex.Store({
 	state: {
 		preLoad: false,
+		socketConnected: false,
 		timers: [
 			/* {
 				_id: 0,
@@ -35,22 +36,31 @@ const store = new Vuex.Store({
 				portNum: 0,
 			}, */
 		],
+		selectedTimer: "",
 	},
 	getters: {
+		getConnection: state => state.socketConnected,
 		getTimers: state => state.timers,
 		getPreLoad: state => state.preLoad,
+		getSelectedTimer: state => state.selectedTimer,
 	},
 	mutations: {
+		SET_CONNECTION: (state, payload) => {
+			state.socketConnected = payload;
+		},
+		GET_TIMERS: (state, payload) => {
+			socket.emit("update timers");
+		},
 		SET_TIMERS: (state, payload) => {
 			state.timers = payload;
 		},
 		ADD_TIMER: (state, payload) => {
 			socket.emit("add timer", {
-				timerType: "pump",
+				timerType: payload.timerType,
 				onTime: payload.onTime,
 				offTime: payload.offTime,
-				tag: "pump :)",
-				portNum: "1",
+				tag: payload.tag,
+				portNum: payload.portNum,
 			});
 		},
 		EDIT_TIMER: (state, payload) => {
@@ -59,9 +69,29 @@ const store = new Vuex.Store({
 				patch: payload,
 			});
 		},
+		RESTART_TIMER: (state, payload) => {
+			socket.emit("restart timer", {
+				id: payload,
+			});
+		},
+		START_TIMER: (state, payload) => {
+			socket.emit("start timer", {
+				id: payload,
+			});
+		},
+		PAUSE_TIMER: (state, payload) => {
+			socket.emit("pause timer", {
+				id: payload,
+			});
+		},
+		STOP_TIMER: (state, payload) => {
+			socket.emit("stop timer", {
+				id: payload,
+			});
+		},
 		DELETE_TIMER: (state, payload) => {
 			socket.emit("delete timer", {
-				id: payload._id,
+				id: payload,
 			});
 		},
 		SERVER_RESTART: () => {
@@ -70,6 +100,7 @@ const store = new Vuex.Store({
 		SERVER_POWEROFF: () => {
 			socket.emit("power off");
 		},
+		SET_SELECTED_TIMER: (state, payload) => state.selectedTimer = payload, 
 	},
 	actions: {
 		
@@ -81,7 +112,6 @@ new Vue({
 	router,
 	store: store,
 	components: { App, },
-	template: "<App/>",
 	created: function() {
 		
 	},
@@ -97,6 +127,9 @@ new Vue({
 			tag: "timer1",
 			portNum: 0,
 		}); */
+		setInterval(() => {
+			this.$store.commit("GET_TIMERS");
+		},1000);
 	},
 	methods: {
 		timerTick: function(){
@@ -106,10 +139,12 @@ new Vue({
 			
 		},
 	},
+	template: "<App/>",
 });
 
 socket.on("connect", () => {
 	console.log("Connected!");
+	store.commit("SET_CONNECTION", true);
 });
 	
 /* add timers listener */
@@ -120,4 +155,9 @@ socket.on("timers", (e) => {
 /* listen for tick event */
 socket.on("tick", () => {
 		
+});
+
+socket.on("disconnect", () => {
+	console.log("disconnected");
+	store.commit("SET_CONNECTION", false);
 });

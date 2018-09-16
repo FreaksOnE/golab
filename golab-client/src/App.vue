@@ -17,7 +17,7 @@
 								span="8" 
 								offset="8">
 								<p>
-								<Icon type="connection-bars"/>Server: Online</p>
+								<Icon type="connection-bars"/>Server: {{ getSocketConnection ? "online" : "offline" }}</p>
 							</i-col>
 							<i-col span="8">
 								<p>
@@ -83,7 +83,8 @@
 															v-model="formItem.onTime" 
 															type="time" 
 															value="ZZ" 
-															placeholder="On time ex. 00:00:00" 
+															format="HH:mm"
+															placeholder="On time ex. 00:00" 
 															style="width: 100%"/>
 													</FormItem>
 													<FormItem label="">
@@ -91,7 +92,8 @@
 															v-model="formItem.offTime" 
 															type="time" 
 															value="ZZ" 
-															placeholder="Off time ex. 00:00:00" 
+															format="HH:mm"
+															placeholder="Off time ex. 00:00" 
 															style="width: 100%"/>
 													</FormItem>
 													<FormItem label="Type">
@@ -227,7 +229,7 @@
 										:class="timerElem.timerType">
 										<Card 
 											:bordered="true" 
-											:class="[timerElem.status, { 'edit-mode': editMode, 'selected': timerElem.selected }]"
+											:class="[timerElem.status, { 'edit-mode': editMode, 'selected': (timerElem._id === selectedTimer) }]"
 											shadow 
 											style="width: auto;" 
 											@click.native="handleCardClick(timerElem._id)">
@@ -243,7 +245,7 @@
 												<icon 
 													v-else-if="timerElem.timerType === 'fan'" 
 													type="thermometer"/>
-												{{ timerElem.tag }}
+												{{ timerElem.tag + "::" + timerElem.portNum }}
 												<Cascader 
 													:data="data" 
 													:key="timerElem._id"
@@ -318,6 +320,7 @@
 <script>
 import _ from "lodash";
 import fab from "@/components/fab";
+import {mapMutations, mapGetters,} from "vuex";
 
 var cuformItem = {
 	tag: "",
@@ -384,6 +387,10 @@ export default {
 		};
 	},
 	computed: {
+		...mapGetters({
+			selectedTimer: "getSelectedTimer",
+			getSocketConnection: "getConnection",
+		}),
 		preLoad() {
 			return this.$store.getters.getPreLoad;
 		},
@@ -405,8 +412,18 @@ export default {
 	},
 	mounted: function () { },
 	methods: {
+		...mapMutations({
+			addTimerSubmit: "ADD_TIMER",
+			editTimerSubmit: "EDIT_TIMER",
+			selecTimer: "SET_SELECTED_TIMER",
+			startTimer: "START_TIMER",
+			restartTimer: "RESTART_TIMER",
+			pauseTimer: "PAUSE_TIMER",
+			stopTimer: "STOP_TIMER",
+			deleteTimer: "DELETE_TIMER",
+		}),
 		formatTime: function (val) {
-			var tempDate = new Date(val * 1000);
+			var tempDate = new Date(val * 60 * 1000);
 			//console.log(tempDate);
 			var tempHours = tempDate.getUTCHours();
 			if (tempHours < 10) {
@@ -426,82 +443,78 @@ export default {
 			} else {
 				tempSeconds.toString();
 			}
-			return tempHours + ":" + tempMinutes + ":" + tempSeconds;
+			return tempHours + ":" + tempMinutes;// + ":" + tempSeconds;
 		},
 		cardDoAction: function (val, elem) {
 			var thisCard = this.timers.find(el => el._id === elem);
 
-			//var temp = this.timers.filter(elem => elem.timerType === thisCard.timerType);
 			if (val[0] === "restart") {
-				this.$store.dispatch("restartTimer", {
-					type: thisCard.timerType,
-					id: thisCard._id,
-				}).then(() => {
-					this.$Notice.success({
-						title: "Timer Restarted.",
-						duration: 2,
-					});
+				this.restartTimer(thisCard._id);
+				this.$Notice.success({
+					title: "Timer Restarted.",
+					duration: 2,
 				});
 			} else if (val[0] === "remove") {
-				//console.log("rm");
-				this.$store.dispatch("removeTimer", thisCard._id).then(() => {
-					this.$Notice.success({
-						title: "Timer removed.",
-						duration: 2,
-					});
+				this.deleteTimer(thisCard._id);
+				this.$Notice.success({
+					title: "Timer removed.",
+					duration: 2,
 				});
 			} else if (
 				val[0] === "active" ||
 				val[0] === "paused" ||
 				val[0] === "stopped"
 			) {
-				console.log(thisCard._id);
-				this.$store.dispatch("changeStatus", {
-					type: thisCard.timerType,
-					id: thisCard._id,
-					value: val[0],
-				}).then(() => {
-					this.$Notice.success({
-						title: "Timer status changed.",
-						duration: 2,
-					});
+				if(val[0] === "active"){
+					this.startTimer(thisCard._id);
+				} else if(val[0] === "paused"){
+					this.pauseTimer(thisCard._id);
+				} else if(val[0] === "stopped"){
+					this.stopTimer(thisCard._id);
+				}
+				this.$Notice.success({
+					title: "Timer status changed.",
+					duration: 2,
 				});
 			}
-			
 		},
 		submitTimer: function () {
 			var elem = this.formItem;
-
-			elem.loading = true;
 
 			if (elem.tag === "") elem.tag = "Timer";
 
 			var cuOnTime = new Date("Jan 1, 1970, " + elem.onTime + " GMT+00:00");
 			var cuOffTime = new Date("Jan 1, 1970, " + elem.offTime + " GMT+00:00");
 
-			this.$store.dispatch("addTimer", {
-				tag: elem.tag,
-				onTime: cuOnTime.getTime() / 1000,
-				offTime: cuOffTime.getTime() / 1000,
-				type: elem.type,
-				portNum: elem.portNum,
-			});
+			var onTimeTemp = cuOnTime.getTime() / (1000 * 60);
+			var offTimeTemp = cuOffTime.getTime() / (1000 * 60);
 
-			//console.log(cuOnTime.getUTCHours() + ":" + cuOnTime.getUTCMinutes() + ":" + cuOnTime.getUTCSeconds());
+			if(elem.tag.length && onTimeTemp > 0 && offTimeTemp > 0 && elem.type.length){
+				elem.loading = true;
 
-			elem.tag = "";
-			elem.onTime = "";
-			elem.offTime = "";
-			elem.type = "lamp";
-			elem.portNum = 0;
-
-			setTimeout(() => {
-				elem.loading = false;
-				this.$Notice.success({
-					title: "Timer Added successfully.",
-					duration: 2,
+				this.addTimerSubmit({
+					timerType: elem.type,
+					onTime: onTimeTemp,
+					offTime: offTimeTemp,
+					tag: elem.tag,
+					portNum: elem.portNum,
 				});
-			}, 200);
+
+				elem.tag = "";
+				elem.onTime = "";
+				elem.offTime = "";
+				elem.type = "lamp";
+				elem.portNum = 0;
+
+				setTimeout(() => {
+					elem.loading = false;
+					this.$Notice.success({
+						title: "Timer Added successfully.",
+						duration: 2,
+					});
+				}, 200);
+			} 
+
 		},
 		restartServer: function() {
 			this.$Notice.warning({
@@ -532,9 +545,10 @@ export default {
 					duration: 2,
 				});
 			} else {
-				this.timers.forEach(elem => {
+				/* this.timers.forEach(elem => {
 					elem.selected = false;
-				});
+				}); */
+				this.selecTimer("");				
 				this.editMode = false;
 			}
 		},
@@ -547,10 +561,8 @@ export default {
 		handleCardClick: function (val) {
 			var timerVal = this.timers.find(elem => elem._id === val);
 			if(this.editMode){
-				this.timers.forEach(elem => {
-					elem.selected = false;
-				});
-				timerVal.selected = true;
+				//timerVal.selected = true;
+				this.selecTimer(timerVal._id);
 				cuformItem.tag = timerVal.tag;
 				cuformItem.onTime = this.formatTime(timerVal.initialOnTime);
 				cuformItem.offTime = this.formatTime(timerVal.initialOffTime);
@@ -559,23 +571,27 @@ export default {
 			}
 		},
 		editTimer: function() {
-			var timerElem = this.timers.find(elem => elem.selected === true);
+			var timerElem = this.timers.find(elem => elem._id === this.selectedTimer);
 			
 			var cuOnTime = new Date("Jan 1, 1970, " + this.formItem.onTime + " GMT+00:00");
 			var cuOffTime = new Date("Jan 1, 1970, " + this.formItem.offTime + " GMT+00:00");
 
-			timerElem.status = "restart";
-			timerElem.tag = this.formItem.tag;
-			timerElem.initialOnTime = cuOnTime.getTime() / 1000;
-			timerElem.initialOffTime = cuOffTime.getTime() / 1000;
-			timerElem.timerType = this.formItem.type;
-			timerElem.portNum = this.formItem.portNum;
+			var onTimeTemp = cuOnTime.getTime() / (1000 * 60);
+			var offTimeTemp = cuOffTime.getTime() / (1000 * 60);
 
-			this.$store.dispatch("editTimer", timerElem).then(() => {
-				this.$Notice.success({
-					title: "Timer edited.",
-					duration: 2,
-				});
+			this.editTimerSubmit({
+				_id: timerElem._id,
+				status: "active",
+				tag: this.formItem.tag,
+				timerType: this.formItem.type,
+				portNum: this.formItem.portNum,
+				onTime: onTimeTemp,
+				offTime: offTimeTemp,
+			});
+
+			this.$Notice.success({
+				title: "Timer edited.",
+				duration: 2,
 			});
 		},
 	},

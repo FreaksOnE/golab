@@ -1,22 +1,43 @@
 <template>
-	<div :id="position + '-wrapper'" class="fab-wrapper" v-on-clickaway="away" :style="[ pos, {zIndex: zIndex}, {position: positionType} ]">
-		<div :id="position + '-action'" class="actions-container" :style="listPos">
-			<transition name="fab-actions-appear" :enter-active-class="transitionEnter"	:leave-active-class="transitionLeave">
-				<ul v-show="toggle" class="fab-list">
+	<div 
+		:id="position + '-wrapper'" 
+		class="fab-wrapper" 
+		v-on-clickaway="away" 
+		:style="[ pos, {zIndex: zIndex}, {position: positionType} ]">
+		<div 
+			:id="position + '-action'" 
+			class="actions-container" 
+			:style="listPos">
+			<transition 
+				name="fab-actions-appear" 
+				:enter-active-class="transitionEnter"	
+				:leave-active-class="transitionLeave">
+				<ul 
+					v-show="toggle" 
+					class="fab-list">
 					<template v-for="action in actions">
-						<transition enter-active-class="animated quick zoomIn" leave-active-class="animated quick zoomOut" :key="action.name">
+						<transition 
+							enter-active-class="animated quick zoomIn" 
+							leave-active-class="animated quick zoomOut" 
+							:key="action.name">
 							<template v-if="action.tooltip">
-								<li v-if="toggle" :style="{ 'background-color': action.color || bgColor }"
+								<li 
+									v-if="toggle" 
+									:style="{ 'background-color': action.color || bgColor }"
 									v-tooltip="{ content: action.tooltip, placement: tooltipPosition, classes: 'fab-tooltip', trigger: tooltipTrigger}"
-									@click="toParent(action.name)" class="pointer"
+									@click="toParent(action.name)" 
+									class="pointer"
 									ref="actions">
-									<i :class="[ actionIconSize ,'material-icons']">{{action.icon}}</i>
+									<i :class="[ actionIconSize ,'material-icons']">{{ action.icon }}</i>
 								</li>
 							</template>
 							<template v-else>
-								<li v-if="toggle" :style="{ 'background-color': action.color || bgColor }"
-									@click="toParent(action.name)" class="pointer">
-									<i :class="[ actionIconSize ,'material-icons']">{{action.icon}}</i>
+								<li 
+									v-if="toggle" 
+									:style="{ 'background-color': action.color || bgColor }"
+									@click="toParent(action.name)" 
+									class="pointer">
+									<i :class="[ actionIconSize ,'material-icons']">{{ action.icon }}</i>
 								</li>
 							</template>
 						</transition>
@@ -26,33 +47,51 @@
 		</div>
 		<template v-if="rippleShow">
 			<template v-if="mainTooltip">
-				<div v-ripple="rippleColor == 'light' ? 'rgba(255, 255, 255, 0.35)' : ''" @click="toggle = !toggle"
+				<div 
+					v-ripple="rippleColor == 'light' ? 'rgba(255, 255, 255, 0.35)' : ''" 
+					@click="toggle = !toggle"
 					v-tooltip="{ content: mainTooltip, placement: tooltipPosition, classes: 'fab-tooltip' }"
-					class="fab pointer" :style="{ 'background-color': bgColor, 'padding': paddingAmount }">
-					<i :class="[ mainIconSize , { rotate: toggle } ,'material-icons main']">{{mainIcon}}</i>
+					class="fab pointer" 
+					:style="{ 'background-color': bgColor, 'padding': paddingAmount }">
+					<i :class="[ mainIconSize , { rotate: toggle } ,'material-icons main']">{{ mainIcon }}</i>
 					<i :class="[ mainIconSize , { rotate: toggle } ,'material-icons close']">add</i>
 				</div>
 			</template>
 			<template v-else>
-				<div v-ripple="rippleColor == 'light' ? 'rgba(255, 255, 255, 0.35)' : ''" @click="toggle = !toggle"
-					class="fab pointer" :style="{ 'background-color': bgColor, 'padding': paddingAmount }">
-					<i :class="[ mainIconSize , { rotate: toggle }, 'material-icons main']">{{mainIcon}}</i>
+				<div 
+					v-ripple="rippleColor == 'light' ? 'rgba(255, 255, 255, 0.35)' : ''" 
+					@click="toggle = !toggle"
+					class="fab pointer" 
+					:style="{ 'background-color': bgColor, 'padding': paddingAmount }">
+					<i :class="[ mainIconSize , { rotate: toggle }, 'material-icons main']">{{ mainIcon }}</i>
 					<i :class="[ mainIconSize , { rotate: toggle }, 'material-icons close']">add</i>
 				</div>
 			</template>
 		</template>
 		<template v-else>
 			<template v-if="mainTooltip">
-				<div v-bind:v-tooltip="{ content: mainTooltip, placement: tooltipPosition, classes: 'fab-tooltip'}"
-					class="fab pointer" :style="{ 'background-color': bgColor, 'padding': paddingAmount }">
-					<i class="material-icons md-36 main" :class="{ rotate: toggle }">{{mainIcon}}</i>
-					<i class="material-icons md-36 close" :class="{ rotate: toggle }">add</i>
+				<div 
+					:v-tooltip="{ content: mainTooltip, placement: tooltipPosition, classes: 'fab-tooltip'}"
+					class="fab pointer" 
+					:style="{ 'background-color': bgColor, 'padding': paddingAmount }">
+					<i 
+						class="material-icons md-36 main" 
+						:class="{ rotate: toggle }">{{ mainIcon }}</i>
+					<i 
+						class="material-icons md-36 close" 
+						:class="{ rotate: toggle }">add</i>
 				</div>
 			</template>
 			<template v-else>
-				<div class="fab pointer" :style="{ 'background-color': bgColor, 'padding': paddingAmount }">
-					<i class="material-icons md-36 main" :class="{ rotate: toggle }">{{mainIcon}}</i>
-					<i class="material-icons md-36 close" :class="{ rotate: toggle }">add</i>
+				<div 
+					class="fab pointer" 
+					:style="{ 'background-color': bgColor, 'padding': paddingAmount }">
+					<i 
+						class="material-icons md-36 main" 
+						:class="{ rotate: toggle }">{{ mainIcon }}</i>
+					<i 
+						class="material-icons md-36 close" 
+						:class="{ rotate: toggle }">add</i>
 				</div>
 			</template>
 		</template>
@@ -65,16 +104,9 @@ import Ripple from "vue-ripple-directive";
 import { VTooltip, } from "v-tooltip";
 
 export default {
-	name: "fab",
-	mixins: [clickaway,],
+	name: "Fab",
 	directives: { Ripple, tooltip: VTooltip, },
-	data() {
-		return {
-			toggle: false,
-			pos: {},
-			tooltipPosition: "left",
-		};
-	},
+	mixins: [clickaway,],
 	props: {
 		bgColor: {
 			default: "#333333",
@@ -109,6 +141,13 @@ export default {
 		actions: {
 			default: () => [],
 		},
+	},
+	data() {
+		return {
+			toggle: false,
+			pos: {},
+			tooltipPosition: "left",
+		};
 	},
 	computed: {
 		actionIconSize() {
@@ -175,7 +214,7 @@ export default {
 				};
 			} else if (
 				this.position === "bottom-right" ||
-        this.position === "bottom-left"
+				this.position === "bottom-left"
 			) {
 				return {
 					enter: "animated quick fadeInUp",
@@ -195,6 +234,27 @@ export default {
 
 			return "hover";
 		},
+	},
+	watch: {
+		// eslint-disable-next-line	
+		position(val) {
+			this.setPosition();
+
+			this.$nextTick(() => {
+				this.moveTransition();
+				this.tooltipPos();
+			});
+		},
+		toggle(val) {
+			this.showTooltip(val);
+			this.$emit("change", {val: val,});
+		},
+	},
+	mounted() {
+		this.moveTransition();
+	},
+	created() {
+		this.setPosition();
 	},
 	methods: {
 		tooltipPos() {
@@ -258,42 +318,21 @@ export default {
 			}
 		},
 	},
-	watch: {
-		// eslint-disable-next-line	
-		position(val) {
-			this.setPosition();
-
-			this.$nextTick(() => {
-				this.moveTransition();
-				this.tooltipPos();
-			});
-		},
-		toggle(val) {
-			this.showTooltip(val);
-			this.$emit("change", {val: val,});
-		},
-	},
-	mounted() {
-		this.moveTransition();
-	},
-	created() {
-		this.setPosition();
-	},
 };
 </script>
 
 <style>
 .fab-tooltip.tooltip {
+  z-index: 10000;
   display: block !important;
   padding: 4px;
-  z-index: 10000;
 }
 
 .fab-tooltip.tooltip .tooltip-inner {
-  background: #333333;
-  color: white;
-  border-radius: 0px;
   padding: 5px 10px 4px;
+  color: white;
+  background: #333;
+  border-radius: 0;
 }
 
 .fab-tooltip.tooltip tooltip-arrow {
@@ -301,15 +340,15 @@ export default {
 }
 
 .fab-tooltip.tooltip[aria-hidden="true"] {
-  visibility: hidden;
+  transition: opacity .15s, visibility .15s;
   opacity: 0;
-  transition: opacity 0.15s, visibility 0.15s;
+  visibility: hidden;
 }
 
 .fab-tooltip.tooltip[aria-hidden="false"] {
-  visibility: visible;
+  transition: opacity .15s;
   opacity: 1;
-  transition: opacity 0.15s;
+  visibility: visible;
 }
 </style>
 

@@ -5,6 +5,9 @@ const io = require(`socket.io`)(http);
 const mongoose = require(`mongoose`);
 const timerModel = require(`./models/timer.js`);
 
+const gpio = require(`rpi-gpio`);
+const gpiop = gpio.promise;
+
 // Configuring Mangoose
 const mongoDB = `mongodb://localhost:27017/test`;
 mongoose.connect(mongoDB, { useNewUrlParser: true });
@@ -24,6 +27,21 @@ function getTimers(params) {
 	});
 }
 
+/* init GPIO pins on the rpi */
+function initPins() {
+	getTimers().then((res) => {
+		res.forEach((elem) => {
+			gpiop.setup(elem.portNum, gpio.DIR_OUT).then(() => {
+				gpiop.write(elem.portNum, true);
+			}).catch((err) => {
+				console.log(`Error: `, err.toString());
+			});
+		});
+	});
+}
+
+initPins();
+
 /* add timer to db */
 function addTimer(params) {
 	return new Promise((resolve, reject) => {
@@ -31,10 +49,13 @@ function addTimer(params) {
 			reject();
 		}
 		const timerObj = new timerModel();
+		timerObj.timerType = params.timerType;
 		timerObj.initialOnTime = params.onTime;
 		timerObj.initialOffTime = params.offTime;
 		timerObj.onTime = params.onTime;
 		timerObj.offTime = params.offTime;
+		timerObj.tag = params.tag;
+		timerObj.portNum = params.portNum;
 
 		timerObj.save((err, result) => {
 			if (err) {
@@ -61,8 +82,102 @@ function editTimer(params) {
 					timerType: params.patch.timerType,
 					initialOnTime: params.patch.onTime,
 					initialOffTime: params.patch.offTime,
+					onTime: params.patch.onTime,
+					offTime: params.patch.offTime,
 					tag: params.patch.tag,
 					portNum: params.patch.portNum
+				},
+				() => {
+					resolve(result);
+				}
+			);
+		});
+	});
+}
+
+/* start timer by id */
+function startTimer(params) {
+	return new Promise((resolve, reject) => {
+		if (!params.id) {
+			reject();
+		}
+		timerModel.where({ _id: params.id }).findOne((err, result) => {
+			if (err) {
+				reject(err);
+			}
+			result.update(
+				{
+					status: `active`
+				},
+				() => {
+					resolve(result);
+				}
+			);
+		});
+	});
+}
+
+/* restart timer by id */
+function restartTimer(params) {
+	return new Promise((resolve, reject) => {
+		if (!params.id) {
+			reject();
+		}
+		timerModel.where({ _id: params.id }).findOne((err, result) => {
+			if (err) {
+				reject(err);
+			}
+			result.update(
+				{
+					status: `active`,
+					onTime: result.initialOnTime,
+					offTime: result.initialOffTime
+				},
+				() => {
+					resolve(result);
+				}
+			);
+		});
+	});
+}
+
+/* pause timer by id */
+function pauseTimer(params) {
+	return new Promise((resolve, reject) => {
+		if (!params.id) {
+			reject();
+		}
+		timerModel.where({ _id: params.id }).findOne((err, result) => {
+			if (err) {
+				reject(err);
+			}
+			result.update(
+				{
+					status: `paused`
+				},
+				() => {
+					resolve(result);
+				}
+			);
+		});
+	});
+}
+
+/* stop timer by id */
+function stopTimer(params) {
+	return new Promise((resolve, reject) => {
+		if (!params.id) {
+			reject();
+		}
+		timerModel.where({ _id: params.id }).findOne((err, result) => {
+			if (err) {
+				reject(err);
+			}
+			result.update(
+				{
+					status: `stopped`,
+					onTime: result.initialOnTime,
+					offTime: result.initialOffTime
 				},
 				() => {
 					resolve(result);
@@ -78,7 +193,7 @@ function deleteTimer(params) {
 		if (!params.id) {
 			reject();
 		}
-		timerModel.where({ _id: params.id }).findOneAndDelete((err, result) => {
+		timerModel.deleteOne({ _id: params.id }, (err, result) => {
 			if (err) {
 				reject(err);
 			}
@@ -86,6 +201,7 @@ function deleteTimer(params) {
 		});
 	});
 }
+
 
 /* one minute tick event */
 function minuteTick() {
@@ -100,11 +216,11 @@ function minuteTick() {
 
 				if (tempOffTime > 0) {
 					elem.update({ offTime: tempOffTime - 1 }).exec();
-				} else {
+				} else if (tempOnTime > 0) {
 					elem.update({ onTime: tempOnTime - 1 }).exec();
 				}
 				/* restart time on finish */
-				if (tempOnTime === 0 && tempOffTime === 0) {
+				if (tempOnTime < 1 && tempOffTime < 1) {
 					elem.update({ onTime: elem.initialOnTime, offTime: elem.initialOffTime }).exec();
 				}
 			});
@@ -116,7 +232,7 @@ function minuteTick() {
 setInterval(() => {
 	minuteTick().then(() => {
 		getTimers().then((e) => {
-			console.log(e);
+			// console.log(e);
 		});
 	});
 }, 1000);
@@ -134,6 +250,14 @@ io.on(`connection`, (socket) => {
 	/* send all timers to socket */
 	getTimers().then((res) => {
 		socket.emit(`timers`, res);
+	});
+
+	/* listen for update timer event */
+	socket.on(`update timers`, (payload) => {
+		/* send back all timers */
+		getTimers().then((res) => {
+			socket.emit(`timers`, res);
+		});
 	});
 
 	/* listen for add timer event */
@@ -157,11 +281,45 @@ io.on(`connection`, (socket) => {
 		});
 	});
 
+	/* listen for start timer event */
+	socket.on(`start timer`, (res) => {
+		console.log(`start timer`);
+		startTimer(res).then(() => {
+
+		});
+	});
+
+	/* listen for restart timer event */
+	socket.on(`restart timer`, (res) => {
+		console.log(`restart timer`);
+		restartTimer(res).then(() => {
+
+		});
+	});
+
+	/* listen for pause timer event */
+	socket.on(`pause timer`, (res) => {
+		console.log(`pause timer`);
+		pauseTimer(res).then(() => {
+
+		});
+	});
+
+	/* listen for stop timer event */
+	socket.on(`stop timer`, (res) => {
+		console.log(`stop timer`);
+		stopTimer(res).then(() => {
+
+		});
+	});
+
 	/* listen for delete timer event */
 	socket.on(`delete timer`, (res) => {
 		console.log(`delete timer`);
 		deleteTimer(res).then(() => {
 
+		}).catch((err) => {
+			console.log(err);
 		});
 	});
 

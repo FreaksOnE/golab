@@ -5,8 +5,8 @@ const io = require(`socket.io`)(http);
 const mongoose = require(`mongoose`);
 const timerModel = require(`./models/timer.js`);
 
-const gpio = require(`rpi-gpio`);
-const gpiop = gpio.promise;
+const Gpio = require(`onoff`).Gpio; //eslint-disable-line
+const led = new Gpio(17, `out`);
 
 // Configuring Mangoose
 const mongoDB = `mongodb://localhost:27017/test`;
@@ -31,11 +31,7 @@ function getTimers(params) {
 function initPins() {
 	getTimers().then((res) => {
 		res.forEach((elem) => {
-			gpiop.setup(elem.portNum, gpio.DIR_OUT).then(() => {
-				gpiop.write(elem.portNum, true);
-			}).catch((err) => {
-				console.log(`Error: `, err.toString());
-			});
+			/*  */
 		});
 	});
 }

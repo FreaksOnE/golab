@@ -202,12 +202,12 @@ function deleteTimer(params) {
 
 /* turn on a pin by pin number */
 function turnPinOn(e) {
-	e.writeSync(1);
+	e.writeSync(0);
 }
 
 /* turn on a pin by pin number */
 function turnPinOff(e) {
-	e.writeSync(0);
+	e.writeSync(1);
 }
 
 /* one minute tick event */

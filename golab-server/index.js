@@ -276,6 +276,7 @@ io.on(`connection`, (socket) => {
 			/* send back all timers */
 			getTimers().then((res) => {
 				socket.emit(`timers`, res);
+				initPins();
 			});
 		}).catch((err) => {
 			console.log(err);
@@ -286,7 +287,7 @@ io.on(`connection`, (socket) => {
 	socket.on(`edit timer`, (res) => {
 		console.log(`edit timer`);
 		editTimer(res).then(() => {
-
+			initPins();
 		});
 	});
 
@@ -326,7 +327,7 @@ io.on(`connection`, (socket) => {
 	socket.on(`delete timer`, (res) => {
 		console.log(`delete timer`);
 		deleteTimer(res).then(() => {
-
+			initPins();
 		}).catch((err) => {
 			console.log(err);
 		});

@@ -1,4 +1,5 @@
-const app = require(`express`)();
+const express = require(`express`);
+const app = express();
 const http = require(`http`).Server(app);
 const io = require(`socket.io`)(http);
 
@@ -248,11 +249,8 @@ setInterval(() => {
 	});
 }, 1000);
 
-
-/*  */
-app.get(`/`, (req, res) => {
-	res.sendFile(`${__dirname}/static/index.html`);
-});
+/* serve static files */
+app.use(express.static(`static`));
 
 /* connection */
 io.on(`connection`, (socket) => {

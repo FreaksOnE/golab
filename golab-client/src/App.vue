@@ -105,7 +105,7 @@
 													</FormItem>
 													<FormItem label="Port number">
 														<InputNumber 
-															:max="10" 
+															:max="99" 
 															:min="1" 
 															:step="1" 
 															v-model="formItem.portNum"/>

@@ -6,7 +6,7 @@ const mongoose = require(`mongoose`);
 const timerModel = require(`./models/timer.js`);
 
 const Gpio = require(`onoff`).Gpio; //eslint-disable-line
-const led = new Gpio(17, `out`);
+const pinControllers = [];
 
 // Configuring Mangoose
 const mongoDB = `mongodb://localhost:27017/test`;
@@ -31,7 +31,8 @@ function getTimers(params) {
 function initPins() {
 	getTimers().then((res) => {
 		res.forEach((elem) => {
-			/*  */
+			const tempPin = new Gpio(17, `out`);
+			pinControllers[elem.portNum] = tempPin;
 		});
 	});
 }
@@ -198,6 +199,15 @@ function deleteTimer(params) {
 	});
 }
 
+/* turn on a pin by pin number */
+function turnPinOn(e) {
+	e.writeSync(1);
+}
+
+/* turn on a pin by pin number */
+function turnPinOff(e) {
+	e.writeSync(0);
+}
 
 /* one minute tick event */
 function minuteTick() {
@@ -211,12 +221,17 @@ function minuteTick() {
 				const tempOffTime = parseInt(elem.offTime, 10);
 
 				if (tempOffTime > 0) {
+					/* output pin will be LOW */
+					turnPinOff(pinControllers[elem.portNum]);
 					elem.update({ offTime: tempOffTime - 1 }).exec();
 				} else if (tempOnTime > 0) {
+					/* output pin will be HIGH */
+					turnPinOn(pinControllers[elem.portNum]);
 					elem.update({ onTime: tempOnTime - 1 }).exec();
 				}
-				/* restart time on finish */
+				/* restart timer on finish */
 				if (tempOnTime < 1 && tempOffTime < 1) {
+					turnPinOff(pinControllers[elem.portNum]);
 					elem.update({ onTime: elem.initialOnTime, offTime: elem.initialOffTime }).exec();
 				}
 			});
@@ -335,6 +350,6 @@ io.on(`connection`, (socket) => {
 	});
 });
 
-http.listen(3000, () => {
-	console.log(`listening on *:3000`);
+http.listen(80, () => {
+	console.log(`listening on *:80`);
 });
